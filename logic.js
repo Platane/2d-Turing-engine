@@ -4016,7 +4016,7 @@ window.onload = function(){
 	
 	var tb=ToolBox.create( scene  );
 	tb._panels.monitoring._ll=ll;
-	tb.getElement().appendTo( $("body") );
+	tb.getElement().appendTo( $("body") ).css({'z-index':50});
 	
 	ll.next();
 	
