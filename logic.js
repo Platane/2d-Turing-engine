@@ -1,15 +1,4 @@
 
-// TODO
-/*
-make the click event unblocked,
-dont prevent its propagation
-
-in css add some cool over effect to pop up
-
-organize the list of element in a smart way,
-arrows with arrows ...
-*/
-
 
 
 ( function( scope ){
@@ -339,7 +328,6 @@ CycleNotifier.create=function(){
 	c.init();
 	return c;
 };
-CycleNotifier.prototype._requestAnimationFrame=5;
 window.requestAnimFrame=(function(callback){
 		return window.requestAnimationFrame ||
 		window.webkitRequestAnimationFrame ||
@@ -3876,6 +3864,7 @@ LevelsLoader.prototype={
 					tape.write(lvl.writeManualTapeSolution[i].x,lvl.writeManualTapeSolution[i].y,lvl.writeManualTapeSolution[i].s);
 				
 				self.resetCursor(true);
+				self._monitoring.stop();
 			});
 			
 			this.navigationLayer.find('.btn[data-action="reset"]')
@@ -3890,6 +3879,7 @@ LevelsLoader.prototype={
 					tape.write(lvl.writeManualTape[i].x,lvl.writeManualTape[i].y,lvl.writeManualTape[i].s);
 				
 				self.resetCursor(true);
+				self._monitoring.stop();
 			});
 		}
 		
@@ -3929,10 +3919,10 @@ LevelsLoader.prototype={
 				return;
 		
 		//ok!
-		if( !this.descriptionLayer )
+		if( !this.navigationLayer )
 			this.next();
 		else{
-			this.descriptionLayer.find('.btn[data-action="next"]').addClass("btn-success");
+			this.navigationLayer.find('.btn[data-action="next"]').addClass("btn-success");
 		}
 	},
 };
