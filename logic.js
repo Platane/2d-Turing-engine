@@ -1,15 +1,4 @@
 
-// TODO
-/*
-make the click event unblocked,
-dont prevent its propagation
-
-in css add some cool over effect to pop up
-
-organize the list of element in a smart way,
-arrows with arrows ...
-*/
-
 
 
 ( function( scope ){
@@ -339,7 +328,6 @@ CycleNotifier.create=function(){
 	c.init();
 	return c;
 };
-CycleNotifier.prototype._requestAnimationFrame=5;
 window.requestAnimFrame=(function(callback){
 		return window.requestAnimationFrame ||
 		window.webkitRequestAnimationFrame ||
@@ -587,11 +575,11 @@ var colorPalette = [
 	"#BBA341",
 	"#A76CBA",
 	"#C23102",
-	"#913B10",
 	"#01B101",
 	"#128190",
 	"#EBA914",
 	"#9012C1",
+	"#913B10",
 ];
 
 /*
@@ -1070,12 +1058,11 @@ Map.prototype = {
 	getRewriteManual : function(){
 		var man=[],
 			s;
-		var x=this._map.length;
-		while(x--){
+		var boxL=200;
+		for(var x=-boxL;x<this._map.length;x++){
 			if(this._map[x]==null)
 				continue;
-			var y=this._map[x].length;
-			while(y--)
+			for(var y=-boxL;y<this._map[x].length;y++)
 				if((s=this.read(x,y))!=CEL_EMPTY)
 					man.push( {x:x,y:y,s:s});
 		}
@@ -2220,6 +2207,7 @@ extend( MapReactiveRenderer , {
 		.bind('mousedown',function(e){e.stopPropagation();})
 		.unbind('keydown')
 		.css({'background-size':'cover' , 'text-align':'center'})
+		.css({'color':'#000' , 'weight':'bold'})
 		.css({'position':'absolute'});
 		var editedCel;
 		
@@ -2232,10 +2220,11 @@ extend( MapReactiveRenderer , {
 			var x= (cel.x+o.x)*ts + offset.left,
 				y= (cel.y+o.y)*ts + offset.top;
 			
-			input.css({'top':y+'px','left':x+'px'})
-			.width(ts).height(ts)
+			input.css({'top':(y-ts*0.2)+'px','left':(x-ts*0.2)+'px'})
+			.css({'width':(ts*1.4)+'px','height':(ts*1.4)+'px'})
 			.val( defaultLbl[mapD._datamap.read(cel.x,cel.y)] )
-			.css({'font-size':(ts*0.5)+'px'})
+			//.val( '' )
+			.css({'font-size':(ts*1)+'px'})
 			.data( 'cel' , cel )
 			.appendTo(mapD.popUpLayer)
 			.focusin();
@@ -2248,7 +2237,7 @@ extend( MapReactiveRenderer , {
 			mapD.popUpLayer.addClass('active');
 			
 			popUp.appendTo(mapD.popUpLayer)
-			.css({'top':y+'px','left':(x+ts+25)+'px'});
+			.css({'top':y+'px','left':(x+ts+35)+'px'});
 			
 			popUp.find('.label').css({'display':'inline-block'});
 			
@@ -2259,7 +2248,7 @@ extend( MapReactiveRenderer , {
 				cmd.mgr.execute( cmd.writeMap.create( mapD._datamap , {x:editedCel.x,y:editedCel.y} , item.data('symbol') ) );
 				finishNoSave();
 			});
-			input.focus().focusin();
+			input.focus().select();
 			
 			editedCel=cel;
 		};
@@ -2596,28 +2585,9 @@ extend( MapReactiveRenderer , {
 			drag = false;
 		var DOMtiles=[];	
 		
-		var startRoute = function( e ){
-			drag = true;
-			anchorD = getCel(e);
-		};
-		var moveRoute = function( e ){
-			if( !drag )
-				return;
-			
-			var ts=self.getTileSize();
-			var offset=mapD.eventLayer.offset();
-			
-			var c = {
-				x : (e.pageX-offset.left) / ts - self.getOrigin().x ,
-				y : (e.pageY-offset.top) / ts - self.getOrigin().y 
-			};
-			
-			var cel={x:Math.floor(c.x),y:Math.floor(c.y)};
-			
-			if( Math.abs( (c.x%1+1)%1 - 0.5 ) < 0.5 && Math.abs( (c.y%1+1)%1 - 0.5 ) < 0.5 && ( anchorM.x != cel.x || anchorM.y != cel.y ) ){
-				
-				anchorM = cel;
-				var i=0;
+		var fill=function(){
+			var ts=self.getTileSize(); 
+			var i=0;
 				for(var x = Math.min( anchorM.x , anchorD.x ) ; x <= Math.max( anchorM.x , anchorD.x ) ; x++ )
 				for(var y = Math.min( anchorM.y , anchorD.y ) ; y <= Math.max( anchorM.y , anchorD.y ) ; y++ )
 				{
@@ -2644,6 +2614,32 @@ extend( MapReactiveRenderer , {
 					DOMtiles[i]=null;
 					delete DOMtiles[i];
 				}
+		};
+		
+		var startRoute = function( e ){
+			drag = true;
+			anchorD = getCel(e);
+			anchorM = getCel(e);
+			fill();
+		};
+		var moveRoute = function( e ){
+			if( !drag )
+				return;
+			
+			var ts=self.getTileSize();
+			var offset=mapD.eventLayer.offset();
+			
+			var c = {
+				x : (e.pageX-offset.left) / ts - self.getOrigin().x ,
+				y : (e.pageY-offset.top) / ts - self.getOrigin().y 
+			};
+			
+			var cel={x:Math.floor(c.x),y:Math.floor(c.y)};
+			
+			if( Math.abs( (c.x%1+1)%1 - 0.5 ) < 0.5 && Math.abs( (c.y%1+1)%1 - 0.5 ) < 0.5 && ( anchorM.x != cel.x || anchorM.y != cel.y ) ){
+				
+				anchorM = cel;
+				fill();
 			}
 		
 		};
@@ -3404,12 +3400,8 @@ MonitoringPanel.prototype = {
 		playPauseBn.mousedown( function( e ){
 			
 			if( self._run ){
-				$(e.target).addClass( "bn_running" ).removeClass( "bn_paused" ).attr( "title" , "play" );
-				nextBn.show();
 				self.stop();
 			} else {
-				$(e.target).addClass( "bn_paused" ).removeClass( "bn_running" ).attr( "title" , "pause" );
-				nextBn.hide();
 				self.start();
 			}
 		});
@@ -3456,9 +3448,13 @@ MonitoringPanel.prototype = {
 	start : function( ){
 		this._run = true;
 		this._cyclePartial = 0;
+		this._el.find('.btn[title="play"]').addClass( "bn_running" ).removeClass( "bn_paused" );
+		this._el.find('.btn[title="next"]').hide();
 	},
 	stop : function(){
 		this._run = false;
+		this._el.find('.btn[title="play"]').removeClass( "bn_running" ).addClass( "bn_paused" );
+		this._el.find('.btn[title="next"]').show();
 	},
 	call : function( delta ){
 		
@@ -3538,7 +3534,7 @@ EditingPanel.prototype = {
 		if( this._state == s )
 			s = 0;
 		
-		$('input[type="button"][data-actived]').attr( "data-actived" , "false" );
+		$('.btn[data-actived]').attr( "data-actived" , "false" ).removeClass('btn-info');
 		
 		switch( s ){
 			case 0 :
@@ -3549,13 +3545,13 @@ EditingPanel.prototype = {
 			case 1 :
 				this._scene.getPhyTape().movable( false ).pathTracable( true );
 				this._scene.getPhyInstr().movable( false ).pathTracable( true );
-				$('input[type="button"][title="route tracer"]').attr( "data-actived" , "true" );
+				$('.btn[title="route tracer"]').attr( "data-actived" , "true" ).addClass('btn-info');
 			break;
 			
 			case 2 :
 				this._scene.getPhyTape().movable( false ).erasable( true );
 				this._scene.getPhyInstr().movable( false ).erasable( true );
-				$('input[type="button"][title="eraser"]').attr( "data-actived" , "true" );
+				$('.btn[title="eraser"]').attr( "data-actived" , "true" ).addClass('btn-info');
 			break;
 		}
 		
@@ -3803,11 +3799,14 @@ LevelsLoader.prototype={
 	next:function(){
 		this.level++;
 		this.loadLevel(levels[this.level]);
+		this._monitoring.stop();
 	},
-	resetCursor:function(){
+	resetCursor:function(force){
 		var lvl=levels[this.level];
-		this.engine.setCursorTape(lvl.cursorTape.x,lvl.cursorTape.y);
-		this.engine.setCursorInstr(lvl.cursorInstruction.x,lvl.cursorInstruction.y);
+		if( force || !lvl.authorizerTape.cursorCtrl )
+			this.engine.setCursorTape(lvl.cursorTape.x,lvl.cursorTape.y);
+		if( force || !lvl.authorizerInstruction.cursorCtrl )
+			this.engine.setCursorInstr(lvl.cursorInstruction.x,lvl.cursorInstruction.y);
 	},
 	resetMaps:function(){
 		var lvl=levels[this.level];
@@ -3843,13 +3842,18 @@ LevelsLoader.prototype={
 		//load the html description
 		if( this.descriptionLayer ){
 			this.descriptionLayer.children().remove();
-			this.descriptionLayer.empty().wrapInner(lvl.description);
-			var self=this;
-			$('<div class="btn" data-action="next">next!</div>')
-			.bind('click',function(){self.next();})
-			.appendTo(this.descriptionLayer);
+			this.descriptionLayer.empty().wrapInner(lvl.description[ this.descriptionLayer.attr('lang')||'fr' ] );
 			
-			$('<div class="btn" data-action="solution">solution</div>')
+		}
+		if( this.navigationLayer){
+			var self=this;
+			this.navigationLayer.find('.btn[data-action="next"]')
+			.removeClass('btn-success')
+			.unbind('click')
+			.bind('click',function(){self.next();});
+			
+			this.navigationLayer.find('.btn[data-action="solution"]')
+			.unbind('click')
 			.bind('click',function(){
 				instruction.reset();
 				for(var i=0;i<lvl.writeManualInstructionSolution.length;i++)
@@ -3859,11 +3863,12 @@ LevelsLoader.prototype={
 				for(var i=0;i<lvl.writeManualTapeSolution.length;i++)
 					tape.write(lvl.writeManualTapeSolution[i].x,lvl.writeManualTapeSolution[i].y,lvl.writeManualTapeSolution[i].s);
 				
-				self.resetCursor();
-			})
-			.appendTo(this.descriptionLayer);
+				self.resetCursor(true);
+				self._monitoring.stop();
+			});
 			
-			$('<div class="btn" data-action="reset">reset</div>')
+			this.navigationLayer.find('.btn[data-action="reset"]')
+			.unbind('click')
 			.bind('click',function(){
 				instruction.reset();
 				for(var i=0;i<lvl.writeManualInstruction.length;i++)
@@ -3873,9 +3878,9 @@ LevelsLoader.prototype={
 				for(var i=0;i<lvl.writeManualTape.length;i++)
 					tape.write(lvl.writeManualTape[i].x,lvl.writeManualTape[i].y,lvl.writeManualTape[i].s);
 				
-				self.resetCursor();
-			})
-			.appendTo(this.descriptionLayer);
+				self.resetCursor(true);
+				self._monitoring.stop();
+			});
 		}
 		
 		//win test
@@ -3914,10 +3919,10 @@ LevelsLoader.prototype={
 				return;
 		
 		//ok!
-		if( !this.descriptionLayer )
+		if( !this.navigationLayer )
 			this.next();
 		else{
-			this.descriptionLayer.find('.btn[data-action="next"]').addClass("btn-success");
+			this.navigationLayer.find('.btn[data-action="next"]').addClass("btn-success");
 		}
 	},
 };
@@ -4003,6 +4008,7 @@ window.onload = function(){
 	
 	ll=LevelsLoader.create(engine,authorizerTape,authorizerInstruction);
 	ll.descriptionLayer=$('#description');
+	ll.navigationLayer=$('#navigation');
 	/*
 	for( var i = 50 ; i >= 0 ; i -- )
 	for( var j = 50 ; j >= 0 ; j -- )
@@ -4015,7 +4021,10 @@ window.onload = function(){
 	instruction=scene.getPhyInstr();
 	
 	var tb=ToolBox.create( scene  );
+	
 	tb._panels.monitoring._ll=ll;
+	ll._monitoring=tb._panels.monitoring;
+	
 	tb.getElement().appendTo( $("body") ).css({'z-index':50});
 	
 	ll.next();

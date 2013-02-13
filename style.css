@@ -10,10 +10,20 @@
 	background-image:none;
 }
 
+.mini-tile{
+	background-size:cover;
+	background-repeat:norepeat;
+	width:1em;
+	height:1em;
+	display:inline-block;
+	vertical-align:middle;
+}
+
 .tile {
 	border-top:solid 1px #ddd;
 	border-left:solid 1px #ddd;
 	background-size:cover;
+	background-repeat:norepeat;
 }
 
 .tile.read-only {
