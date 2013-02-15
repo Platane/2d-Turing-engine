@@ -2261,9 +2261,10 @@ extend( MapReactiveRenderer , {
 			editedCel=null;
 		};
 		var keyboardhandlerDown=function(e){
+			var nextCel=null;
 			switch( e.which ){
 				case 13:		//enter
-					var nextCel={x:editedCel.x,y:editedCel.y};
+					nextCel={x:editedCel.x,y:editedCel.y};
 					switch(convert[input.val().trim()]){
 						case CEL_TOP : nextCel.y--; break;
 						case CEL_BOT : nextCel.y++; break;
@@ -2273,25 +2274,27 @@ extend( MapReactiveRenderer , {
 						default : nextCel.x++; break;
 					}
 					saveFromInput();
-					if(!mapD._authorizer.read(nextCel.x,nextCel.y)){
-						finishNoSave();
-						return;
-					}
-					rawEdit(nextCel);
 				break;
 				case 37:	//left
-					rawEdit({x:editedCel.x-1,y:editedCel.y});
+					nextCel={x:editedCel.x-1,y:editedCel.y};
 				break;
 				case 38:	//top
-					rawEdit({x:editedCel.x,y:editedCel.y-1});
+					nextCel={x:editedCel.x,y:editedCel.y-1};
 				break;
 				case 39:	//right
-					rawEdit({x:editedCel.x+1,y:editedCel.y});
+					nextCel={x:editedCel.x+1,y:editedCel.y};
 				break;
 				case 40:	//bot
-					rawEdit({x:editedCel.x,y:editedCel.y+1});
+					nextCel={x:editedCel.x,y:editedCel.y+1};
 				break;
 			};
+			if( nextCel ){
+				if(!mapD._authorizer.read(nextCel.x,nextCel.y))
+					finishNoSave();
+				else
+					rawEdit(nextCel);
+				e.preventDefault();
+			}
 		};
 		var keyboardhandlerUp=function(e){
 			var symbol=convert[input.val().trim()]||'';
