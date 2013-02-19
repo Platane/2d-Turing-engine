@@ -3271,9 +3271,16 @@ ToolBox.prototype = {
 	init : function( scene ){
 		
 		
-		var element=$('<div>').attr( 'id' , 'toolLayer' ).addClass( "toolBox" );
 		
-		var main = $("<div>").css( {"position" : "absolute" , "top" : "0px" , "left" : "0px" } );
+		
+		var element=$('<div>').attr( 'id' , 'toolLayer' ).addClass( "toolBox" )
+		var header=$('<div>').addClass('toolBox-header').css({'height':'50px'}).appendTo(element);
+		
+		var main = $("<div>")
+		//.css( {"position" : "absolute" , "top" : "0px" , "left" : "0px" } );
+		
+		
+		element.movable({target:header});
 		
 		this._panels = {
 			editing : EditingPanel.create( scene  ),
@@ -4004,7 +4011,10 @@ window.onload = function(){
 	
 	var engine=TuringEngine.create( SocialMap.create() , tape  );
 	
-	scene=Scene.createWithDim(800,800,engine,authorizerTape,authorizerInstruction);
+	var container=$("#container");
+	console.log(container.width());
+	
+	scene=Scene.createWithDim(container.width(),container.height(),engine,authorizerTape,authorizerInstruction);
 	scene.getElement().appendTo( $("#container") );
 	//.css({'position':'absolute' , 'top':'130px' , 'left':'20%' });
 	
@@ -4047,6 +4057,72 @@ window.onload = function(){
 document.onselectstart = function() {
   return false;
 };
+
+
+(function($){
+	var Mover=function(element,option){
+		this.drag=false;
+		this.anchor={x:0,y:0};
+		this.anchorD={x:0,y:0};
+		this.$element=element;
+		this.$target=option.target||element;
+		this.listen();
+	};
+	Mover.prototype={
+		
+		$element:null,
+		
+		drag:null,
+		
+		anchor:null,
+		anchorD:null,
+		
+		startmove:function(e){
+			this.drag=true;
+			$('body').bind('mousemove',$.proxy(this.move,this));
+			$('body').bind('mouseup',$.proxy(this.stopmove,this));
+			this.anchorD.x=this.$element.position().left;
+			this.anchorD.y=this.$element.position().top;
+			
+			this.anchor.x=e.pageX;
+			this.anchor.y=e.pageY;
+		},
+		move:function(e){
+			if(this.drag){
+				var dx=this.anchor.x-e.pageX,
+					dy=this.anchor.y-e.pageY;
+					
+				this.$element.css({'left':(this.anchorD.x-dx)+'px','top':(this.anchorD.y-dy)+'px'});
+			}
+		},
+		stopmove:function(e){
+			if(this.drag){
+				$('body').unbind('mousemove',$.proxy(this.move,this));
+				$('body').unbind('mouseup',$.proxy(this.stopmove,this));
+				this.drag=false;
+			}
+		},
+		
+		listen:function(){
+			this.$target.bind('mousedown',$.proxy(this.startmove,this));
+		},
+		
+	};
+	
+	
+	$.fn.movable=function( options ){
+		return this.each(function(){
+			var el=$(this);
+			el.data('Mover', new Mover(el,options||{}));
+		});
+	};
+})(window.jQuery);
+
+
+
+
+
+
 
 /*
 // already existing , name is offset

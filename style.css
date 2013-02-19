@@ -128,18 +128,30 @@ div.popUp {
 	padding: 5px;
 }
 
+.toolBox-header {
+	cursor:move;
+	border-radius:5px;
+	margin-bottom:15px;
+	-webkit-transition:background-color 0.5s ease;
+	-moz-transition:background-color 0.5s ease;
+	transition:background-color 0.5s ease;
+}
+.toolBox-header:hover {
+	background-color:#ddd;
+}
+
 div.toolBox {
 
 	position : absolute;
 	
-	top : 40%;
+	top : 20%;
 	right : 5px;
 	
-	width : 13%;
-	min-width:200px;
-	max-width:300px;
-	height : 40%;
-	
+	width : 10%;
+	min-width:170px;
+	max-width:250px;
+	/*height : 40%;*/
+	min-height : 310px;
 	border-radius : 5px;
 	box-shadow : 0 0 5px 5px #666;
 	background-color: white;
