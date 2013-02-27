@@ -3280,7 +3280,8 @@ ToolBox.prototype = {
 		//.css( {"position" : "absolute" , "top" : "0px" , "left" : "0px" } );
 		
 		
-		element.movable({target:header});
+		//element.movable({target:header});
+		element.movable();
 		
 		this._panels = {
 			editing : EditingPanel.create( scene  ),
@@ -3295,8 +3296,10 @@ ToolBox.prototype = {
 				var j=i;
 				$('<li><a href="#'+i+'">'+i+'</a></li>')
 				.appendTo(nav)
-				.bind('click',function(){
+				.bind('click',function(e){
 					self.switchMode(j);
+					nav.find('li').removeClass('active');
+					$(e.target).parents('li').addClass('active');
 				});
 			})();
 		
@@ -3330,7 +3333,7 @@ ToolBox.prototype = {
 		this.scene=scene;
 		this.element=element;
 		
-		this.switchMode( );
+		nav.find('a:last').click();
 	},
 	getElement : function(){
 		return this.element;
@@ -3404,16 +3407,16 @@ MonitoringPanel.prototype = {
 		var nextBn = $('<div>').addClass("btn").attr( "title" , "next" );;
 		nextBn.mousedown( function( e ){
 			scene.getEngine().cycle();
+			e.stopPropagation();
 		});
 		
 		var playPauseBn = $('<div>').addClass("btn").addClass( "bn_paused" ).attr( "title" , "play" );
 		playPauseBn.mousedown( function( e ){
-			
-			if( self._run ){
+			if( self._run )
 				self.stop();
-			} else {
+			else 
 				self.start();
-			}
+			e.stopPropagation();
 		});
 		
 		var labelSpeed = $("<div>");
@@ -3424,19 +3427,25 @@ MonitoringPanel.prototype = {
 			self._cyclePerS = self._speeds[ e.target.value ];
 			self._cyclePartial = 0;
 			labelSpeed[0].innerHTML = self._cyclePerS+" cycle per seconde";
-		});
-		speedBn.change();
+		})
+		.bind('mousedown',function(e){
+			e.stopPropagation();
+		})
+		.val(2)
+		.change();
 		
 		var speedDownBn = $('<div>').addClass("btn").attr( "title" , "speed down" );
 		speedDownBn.mousedown( function( e ){
 			speedBn[ 0 ].value = Math.max( 0 , parseInt( speedBn[ 0 ].value )-1 );
 			speedBn.change();
+			e.stopPropagation();
 		});
 		
 		var speedUpBn = $('<div>').addClass("btn").attr( "title" , "speed up" );
 		speedUpBn.mousedown( function( e ){
 			speedBn[ 0 ].value = Math.min( 5 , parseInt( speedBn[ 0 ].value )+1 );
 			speedBn.change();
+			e.stopPropagation();
 		});
 		
 		
@@ -3852,7 +3861,7 @@ LevelsLoader.prototype={
 		//load the html description
 		if( this.descriptionLayer ){
 			this.descriptionLayer.children().remove();
-			this.descriptionLayer.empty().wrapInner(lvl.description[ this.descriptionLayer.attr('lang')||'fr' ] );
+			this.descriptionLayer.empty().wrapInner( $(".descriptionPool[lang=fr]").children(".description[data-id="+this.level+"]").html() );
 			
 		}
 		if( this.navigationLayer){

@@ -19,6 +19,7 @@
 	vertical-align:middle;
 }
 
+
 .tile {
 	border-top:solid 1px #ddd;
 	border-left:solid 1px #ddd;
@@ -126,12 +127,15 @@ div.popUp {
 	opacity : 1;
 	
 	padding: 5px;
+	
+	z-index:99;
 }
 
 .toolBox-header {
 	cursor:move;
 	border-radius:5px;
 	margin-bottom:15px;
+	background-color:#eee;
 	-webkit-transition:background-color 0.5s ease;
 	-moz-transition:background-color 0.5s ease;
 	transition:background-color 0.5s ease;
@@ -155,8 +159,6 @@ div.toolBox {
 	border-radius : 5px;
 	box-shadow : 0 0 5px 5px #666;
 	background-color: white;
-	
-	opacity : 1;
 	
 	padding: 5px;
 
@@ -225,4 +227,15 @@ div  .selector  .liste .item {
 }
 .btn[title="switch"]{
 	background-image: url('ressource/gear-icon.png');
+}
+
+
+
+/* bootstrap modification */
+
+.accordion-group.mine{
+	border:none;
+}
+.accordion-inner.mine{
+	padding:8px 0 0 0;
 }
