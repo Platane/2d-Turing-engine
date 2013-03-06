@@ -1,4 +1,4 @@
-<html>
+ï»¿<html>
 <head>
 
 
@@ -25,14 +25,14 @@
 </script>
 </head>
 <body>
-<div style="height:95%;width:35%">
+<div style="height:95%;width:33%">
 <div id="description" lang="fr" style="overflow-y:auto;height:90%;"></div>
 <div id="navigation" lang="fr" style="min-height:30px;height:10%;">
 	<div class="btn" data-action="next">next!</div>
 	<div class="btn" data-action="solution">solution</div>
 	<div class="btn" data-action="reset">reset</div>
 </div>
-<div id="container" style="width:55%;max-width:900px;height:93%;max-height:800px;position:absolute;top:2%;left:37%;"></div>
+<div id="container" style=""></div>
 </div>
 
 <div id="tilePool" style="position:absolute;bottom:10px;display:none;">
@@ -54,9 +54,9 @@
 <div class="descriptionPool" lang="fr" style="display:none;">
 <div class="description" data-id="0">
 	<h1>Vue d'ensemble</h1>
-	<p>Bienvenue sur cette émulateur de machine de Turing en 2 dimension! Nous allons voir ensemble comment elle fonctionne à travers une série de cas.</p>
+	<p>Bienvenue sur cet Ã©mulateur de machine de Turing en 2 dimension! Nous allons voir ensemble comment il fonctionne Ã  travers une sÃ©rie de cas.</p>
 	<h3>Concept</h3>
-	<p>Vous n'êtes peut être pas familier du prinicpe de machine de Turing.
+	<p>Vous n'Ãªtes peut Ãªtre pas familier du prinicpe de machine de Turing.
 	<div class="accordion-group mine">
 	    <div class="accordion-heading">
 	      <a class="accordion-toggle" data-toggle="collapse" href="#collapse1">
@@ -65,49 +65,84 @@
 	    </div>
 	    <div id="collapse1" class="accordion-body collapse">
 			<div class="accordion-inner mine">
-				<p>Un petit rappel s'impose donc. La machine dispose d'une bande de donné composé de cellules où sont inscrit des symboles. Ainsi que d'un jeu d'instruction qui forme un programme. A chaque itération la machine effectue des actions. Ces dernières sont typiquement : changer l'état de la machine, déplacer le curseur de lecture de la bande de donnée, écrire sur la bande de donnée. Elle décide de quoi faire d'après son jeu d'instruction, cela peut varier selon l'état dans lequel elle se trouve, ou selon le symbole lut sur la bande de donnée. A partir ce mécanisme simple on peut reproduire</p>
-				<p> Voila pour le principe général, ici nous utiliserons une machine particulière. Nous utiliserons une bande de donnée à deux dimension, c'est à dire que le curseur peut se déplacer horizontalement et verticalement, il conviendra de parler de carte pour désigner une telle bande. Nous utiliserons une seconde carte pour coder le jeu d'instruction, elle est elle aussi parcourut par un curseur. La position du curseur déterminera ainsi l'état de la machine. La carte programme et la carte de donnée utilise le même jeu de symbole.</p>
-				<p> Ce dernier est assez simple, il se compose de flêches codant pour le déplacement du curseur de la carte de donnée ( <span class='symbol-tleft mini-tile'></span> <span class='symbol-tright mini-tile'></span> <span class='symbol-ttop mini-tile'></span> <span class='symbol-tbot mini-tile'></span> ), de flêches codant pour le déplacement du curseur de la carte d'instruction ( <span class='symbol-left mini-tile'></span> <span class='symbol-right mini-tile'></span> <span class='symbol-top mini-tile'></span> <span class='symbol-bot mini-tile'></span> <span class='symbol-dright mini-tile'></span> <span class='symbol-dleft mini-tile'></span> ), par défaut ce dernier se déplace de gauche à droite apès la lecture d'un symbole , et de symbole de couleur, n'ayant pas d'autre sémantique pour le programme qu'un déplacement par par défaut ( <span class='symbol-color1 mini-tile'></span> <span class='symbol-color2 mini-tile'></span> <span class='symbol-color3 mini-tile'></span> ... ). Ajoutons deux symboles plus complexe pour avoir une machine fonctionnelle. Un rond, ( <span class='symbol-check mini-tile'></span> ) le symbole conditionnel sa sémantique est lié au symbole qui le suit. Lorsque la machine arrive sur ce symbole, elle lit le symbole sur la carte de donnée, si c'est le même que le symbole suivant sur la carte programme, la machine passe sur le symbole gauche suivant, sinon elle passe sur le symbole en bas. Enfin la croix ( <span class='symbol-write mini-tile'></span> ) permet d'inscrire sur la carte de donnée un symbole.</p>
+				<p>Un petit rappel s'impose donc. La machine dispose d'une bande de donnÃ©e composÃ©e de cellules oÃ¹ sont inscrits des symboles. Ainsi que d'un jeu d'instruction qui forme un programme. A chaque itÃ©ration la machine effectue des actions. Ces derniÃ¨res sont typiquement : changer l'Ã©tat de la machine, dÃ©placer le curseur de lecture de la bande de donnÃ©e, Ã©crire sur la bande de donnÃ©e. Elle dÃ©cide de quoi faire d'aprÃ¨s son jeu d'instruction, cela peut varier selon l'Ã©tat dans lequel elle se trouve, ou selon le symbole lut sur la bande de donnÃ©e. A partir ce mÃ©canisme simple on peut reproduire le fonctionnement d'un ordinateur complexe.</p>
+				<p> VoilÃ  pour le principe gÃ©nÃ©ral, ici nous utiliserons une machine particuliÃ¨re. Nous utiliserons une bande de donnÃ©e Ã  deux dimensions, c'est Ã  dire que le curseur peut se dÃ©placer horizontalement et verticalement. Il conviendra de parler de carte pour dÃ©signer une telle bande. Nous utiliserons une seconde carte pour coder le jeu d'instruction, elle est elle aussi parcourue par un curseur. La position du curseur dÃ©terminera ainsi l'Ã©tat de la machine. La carte programme et la carte de donnÃ©e utilisent le mÃªme jeu de symbole.</p>
+				<p> Ce dernier est assez simple, il se compose de flÃ¨ches codant pour le dÃ©placement du curseur de la carte de donnÃ©e ( <span class='symbol-tleft mini-tile'></span> <span class='symbol-tright mini-tile'></span> <span class='symbol-ttop mini-tile'></span> <span class='symbol-tbot mini-tile'></span> ), de flÃ¨ches codant pour le dÃ©placement du curseur de la carte d'instruction ( <span class='symbol-left mini-tile'></span> <span class='symbol-right mini-tile'></span> <span class='symbol-top mini-tile'></span> <span class='symbol-bot mini-tile'></span> <span class='symbol-dright mini-tile'></span> <span class='symbol-dleft mini-tile'></span> ), par dÃ©faut ce dernier se dÃ©place de gauche Ã  droite apÃ¨s la lecture d'un symbole , et de symbole de couleur, n'ayant pas d'autre signification pour le programme qu'un dÃ©placement par par dÃ©faut ( <span class='symbol-color1 mini-tile'></span> <span class='symbol-color2 mini-tile'></span> <span class='symbol-color3 mini-tile'></span> ... ). Ajoutons deux symboles plus complexes pour avoir une machine fonctionnelle. Un rond, ( <span class='symbol-check mini-tile'></span> ) le symbole conditionnel sa signification est liÃ©e au symbole qui le suit. Lorsque la machine arrive sur ce symbole, elle lit le symbole sur la carte de donnÃ©e, si c'est le mÃªme que le symbole suivant sur la carte programme, la machine passe sur le symbole gauche suivant, sinon elle passe sur le symbole en bas. Enfin la croix ( <span class='symbol-write mini-tile'></span> ) permet d'inscrire sur la carte de donnÃ©e un symbole.</p>
 			</div>
 		</div>
 	</div>
 	<h3>Usage</h3>
-	<p>Bien! Maintenant que l'on a les bases, penchons nous sur l'interface. Vous pouvez observer sur votre gauche les deux carte, la carte programme en haut et la carte donnée en bas. Vous pouvez naviguer dans ces carte via cliquer-glisser et ajuster le niveau de zoom avec la molette de la souris.</p>
-	<p>Manipulons à présent le panneau de monitoring, il se trouve tout à droite dans la boite à outil, selectionner l'onglet monitoring. Vous pouvez y lancer la machine, la stopper, ou choisir l'execution pas à pas.</p>
-	<p>Pour réussir cet exercice, lancer la machine et observer le curseur programme se déplacer en fonction du symbole inscrit sur sa case.</p>
+	<p>Bien! Maintenant que l'on a les bases, penchons nous sur l'interface. Vous pouvez observer sur votre gauche les deux carte, la carte programme en haut et la carte donnÃ©e en bas. Vous pouvez naviguer dans ces carte via cliquer-glisser et ajuster le niveau de zoom avec la molette de la souris.</p>
+	<p>Manipulons Ã  prÃ©sent le panneau de monitoring, il se trouve tout Ã  droite dans la boite Ã  outils, selectionnez l'onglet monitoring. Vous pouvez y lancer la machine, la stopper, ou choisir l'execution pas Ã  pas.</p>
+	<p>Pour rÃ©ussir cet exercice, lancez la machine et observez le curseur programme se dÃ©placer en fonction du symbole inscrit sur sa case.</p>
+	<h3>RÃ©capitulatif</h3>
+	<div class="recap">
+	<p>Cet exercice Ã  pour but de vous familiariser avec l'interface.
+	<ul>
+	<li>DÃ©placez les <strong>cartes</strong> en utilisant le <strong>cliquer-glisser</strong></li>
+	<li>Zoomez celle-ci en utilisant la <strong>molette souris</strong></li>
+	<li>Passez la boite Ã  outils en mode <strong>monitoring</strong> (cliquez sur l'onglet)</li>
+	<li>Lancer la machine grÃ¢ce au bouton <strong>play</strong></li>
+	<li>Contemplez le rÃ©sultat</li>
+	</ul>
+	</div>
 </div>
 
 
 <div class="description" data-id="1">
 	<h1>Editons</h1>
-	<p>Apportez donc votre contribution! La carte programme de cet exercise est deffectueuse, on voudrait que le curseur effectue des cycles, comme précédement.</p>
-	<p> Voyons comment utiliser l'éditeur. Premièrement passer en mode édition en cliquant sur l'onglet de la boîte à outil. Nous reviendrons plus tard sur les boutons avec une tête bizarre. Sachez tout d'abord que votre liberté d'action est restreinte pour cette exercice et que vous ne pouvez éditer que les cellules non grisés. Double cliquer sur l'une d'elle pour modifier son symbole. Un panneau devrait vous permettre de selectionner le symbole souhaité dans une liste.</p>
-	<p>Remarquez que tout symbole est lié à une touche et que vous pouver rapidement écrire une ligne de symbole en vous servant de votre clavier. Validez l'entrée au clavier avec entré pour passer à la cellule suivante.</p><p>Lorsque vous avez complété le programme, tester le en mode monitoring.</p>	
+	<p>A vous maintenant! La carte programme de cet exercise est dÃ©fectueuse, on voudrait que le curseur effectue des tours, comme prÃ©cÃ©dement.</p>
+	<p>Voyons comment utiliser l'Ã©diteur. PremiÃ¨rement passez en mode Ã©dition en cliquant sur l'onglet de la boite Ã  outils. Nous reviendrons plus tard sur les boutons avec une tÃªte bizarre. Sachez tout d'abord que votre libertÃ© d'action est restreinte pour cette exercice et que vous ne pouvez Ã©diter que les cellules non grisÃ©es. Double cliquez sur l'une d'elle pour modifier son symbole. Un panneau devrait vous permettre de selectionner le symbole souhaitÃ© dans une liste.</p>
+	<p>Remarquez que tout symbole est liÃ© Ã  une touche et que vous pouvez rapidement Ã©crire une ligne de symboles en vous servant de votre clavier. Validez la saisie au clavier avec la touche entrÃ© pour passer Ã  la cellule suivante.</p>
+	<p>Lorsque vous avez complÃ©tÃ© le programme, testez le en mode monitoring.</p>
+	<h3>RÃ©capitulatif</h3>
+	<div class="recap">
+	<p>On vous demande de vous servir des outils d'Ã©dition.</p>
+	<ul>
+	<li>Passez la boite Ã  outils en mode <strong>editing</strong> (cliquez sur l'onglet)</li>
+	<li>Vous pouvez Ã  prÃ©sent Ã©diter les cases en <strong>double-cliquant</strong>. <small>( Sur une cellule blanche Ã©ditable )</small></li>
+	<li>ComplÃ©tez le chemin</li>
+	<li>Repassez en <strong>monitoring</strong></li>
+	<li>Lancez la machine</li>
+	</ul>
+	</div>
 </div>
 
 
 <div class="description" data-id="2">
-	<h1>fonctionnalités avancées</h1>
-	<p>Même chose ici, le but est de compléter la boucle. Vous êtes cette fois invité à utilisé les outils avancés.</p>
-	<p>Prennez la première coupure, une manière rapide de tracer un chemin est d'utiliser l'outil de traçage de chemin . Vous le trouverez dans la boîte à outils à l'onglet edition. Lorsque celui est sélectionné, faites un cliquer-glisser depuis un point à un autre pour les relier par un chemin.</p>
-	<p>De même pour la seconde coupure, cependant avant d'utiliser l'outil vous aurez probablement besoin de nettoyer la zone de tout les symboles ( les chemin ne peuvent être tracer que sur des cases vides ). Pour cela utiliser l'effaceur de zone, lui aussi dans l'onglet edition. Selectionner une zone par cliquer glisser et relâcher pour supprimer effacer les symboles de la zone. Il ne vous reste qu'a tracer un chemin en évitant les cellules non modifiable.</p>
-	<p>Enfin pour la troisième coupure, vous aurez besoin de sauter par dessus une cellule, vous pouvez pour cela utiliser le symbole double déplacement ( <span class='mini-tile symbol-dleft'></span> <span class='mini-tile symbol-dright'></span> ). C'est très utile pour que des chemins puissent se croiser. Remarquez que le traceur de chemin est capable d'utiliser ce symbole si il le faut.</p> 
+	<h1>FonctionnalitÃ©s avancÃ©es</h1>
+	<p>MÃªme chose ici, le but est de complÃ©ter la boucle. Vous Ãªtes cette fois invitÃ© Ã  utiliser les outils avancÃ©s.</p>
+	<p>Prennez la premiÃ¨re coupure, une maniÃ¨re rapide de tracer un chemin est d'utiliser l'outil de traÃ§age de chemin . Vous le trouverez dans la boite Ã  outils, dans l'onglet d'Ã©dition. Lorsque celui est sÃ©lectionnÃ©, faites un cliquer-glisser depuis un point vers un autre pour les relier par un chemin.</p>
+	<p>De mÃªme pour la seconde coupure, cependant avant d'utiliser l'outil vous aurez probablement besoin de nettoyer la zone de tout les symboles ( les chemins ne peuvent Ãªtre tracÃ©s que sur des cases vides ). Pour cela utilisez l'effaceur de zone, lui aussi dans l'onglet Ã©dition. Selectionner une zone par cliquer glisser et relÃ¢chez pour effacer les symboles de la zone. Il ne vous reste qu'Ã  tracer un chemin en Ã©vitant les cellules non modifiable.</p>
+	<p>Enfin pour la troisiÃ¨me coupure, vous aurez besoin de sauter par dessus une cellule ( on veut garder la forme de 8 ). Vous pouvez pour cela utiliser le symbole double dÃ©placement ( <span class='mini-tile symbol-dleft'></span> <span class='mini-tile symbol-dright'></span> ). C'est trÃ¨s utile pour que des chemins puissent se croiser. Remarquez que le traceur de chemin est capable d'utiliser ce symbole si il le faut.</p> 
+	<h3>RÃ©capitulatif</h3>
+	<div class="recap">
+	<p>Passons en revue les outils avancÃ©s</p>
+	<ul>
+	<li>Passez la boite Ã  outils en mode <strong>editing</strong></li>
+	<li>Utilisez le traceur de chemin en <strong>cliquant glissant</strong> le long du chemin dÃ©sirÃ©.</li>
+	<li>Utilisez l'effaceur de zone en <strong>cliquant glissant</strong> pour dÃ©limiter la zone.</li>
+	<li>Utilisez le symbole <strong>double dÃ©placement</strong> pour sauter une case</li>
+	<li>Lancez la machine depuis le mode <strong>monitoring</strong></li>
+	</ul>
+	</div>
 </div>
 
 
 <div class="description" data-id="3">
 	<h1>Dessinons</h1>
-	<p>C'est maintenant le moment d'utiliser les instructions pour agir sur la bande de donnée.</p>
-	<p>Le but de cet exercice est de dessiner un carré violet autour de la cellule orange.</p>
+	<p>Vous en savez assez sur l'utilisation de l'interface. C'est maintenant le moment d'utiliser les instructions pour agir sur la bande de donnÃ©e.</p>
+	<p>Le but de cet exercice est de dessiner un carrÃ© violet autour de la cellule orange sur la carte de donnÃ©e. Vous n'avez accÃ¨s Ã  celle-ci que via les instructions donnÃ©e Ã  la machine.</p>
 	<div style='margin-left:10%'>
 	<div><span class='mini-tile symbol-color2'></span><span class='mini-tile symbol-color2'></span><span class='mini-tile symbol-color2'></span></div>
 	<div><span class='mini-tile symbol-color2'></span><span class='mini-tile symbol-color6'></span><span class='mini-tile symbol-color2'></span></div>
 	<div><span class='mini-tile symbol-color2'></span><span class='mini-tile symbol-color2'></span><span class='mini-tile symbol-color2'></span></div>
 	</div>
-	<p>C'est à ce motif que l'on voudrait arriver.</p>
-	<p>Les instructions <span class='mini-tile symbol-tleft'></span>, <span class='mini-tile symbol-tright'></span>, <span class='mini-tile symbol-ttop'></span> et <span class='mini-tile symbol-tbot'></span> seront utile pour déplacer le cureur de la carte de donnée.</p>
+	<p>C'est Ã  ce motif que l'on voudrait arriver.</p>
+	<p>Les instructions <span class='mini-tile symbol-tleft'></span>, <span class='mini-tile symbol-tright'></span>, <span class='mini-tile symbol-ttop'></span> et <span class='mini-tile symbol-tbot'></span> seront utile pour dÃ©placer le cureur de la carte de donnÃ©e.</p>
 	<p>Une fois sur la bonne cellule, utilisez la compinaison de symbole <span class='mini-tile symbol-write'></span> <span class='mini-tile symbol-color2'></span> pour inscrire le symbole violet.</p>
-	<p>Répéter l'opération pour toutes les cellules du carré.</p><p>Pour cet exercie vous pouvez modifiez la position initial du curseur.</p>	
+	<p>RÃ©pÃ©ter l'opÃ©ration pour toutes les cellules du carrÃ©.</p>
+	<p>Pour cet exercie vous pouvez modifiez la position initial du curseur.</p>	
 </div>
 </div>
 
