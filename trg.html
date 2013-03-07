@@ -32,7 +32,47 @@
 	<div class="btn" data-action="solution">solution</div>
 	<div class="btn" data-action="reset">reset</div>
 </div>
+</div>
 <div id="container" style=""></div>
+
+
+<div id="tools-box" class="toolBox">
+	<!-- header-->
+	<div class="toolBox-header" style="height: 50px;"></div>
+	<div>
+		<div class="row-fluid">
+		<div class="btn" data-toggle="button" data-action="toggle-pop-up-interaction"></div> pops up instruction
+		</div>
+		<div class="row-fluid">
+		<div class="btn" data-toggle="button" data-action="toggle-follow-cursor"></div> follow cursor
+		</div>
+	</div>
+	<ul class="nav nav-tabs" id="myTab">
+	  <li><a href="#monitoring">monitoring</a></li>
+	  <li><a href="#editing">editing</a></li>
+	</ul>
+	 
+	<div class="tab-content">
+	  <div class="tab-pane" id="monitoring">
+		  <div class="row-fluid">
+			  <div class="btn" data-toggle="button" data-action="toggle-play"></div>
+			  <div class="btn" data-action="play-next"></div>
+		  </div>
+		  <div class="row-fluid">
+			<span data-action="number-cycle" >5</span> cycle per seconde
+		  </div>
+		  <input data-action="speed-set" type="range" min="0" max="5" style="width:100px;">
+		  <div class="row-fluid">
+			 <div class="btn" data-action="speed-down"></div>
+			 <div class="btn" data-action="speed-up"></div>
+		  </div>
+	  </div>
+	  <div class="tab-pane" id="editing">
+		 <div class="btn" data-toggle="button" data-action="toggle-path-tracer"></div>
+		 <div class="btn" data-toggle="button" data-action="toggle-eraser"></div>
+		 <div class="row-fluid">Double click on a cell to edit it</div>
+	  </div>
+	</div>
 </div>
 
 <div id="tilePool" style="position:absolute;bottom:10px;display:none;">
@@ -144,6 +184,45 @@
 	<p>Répéter l'opération pour toutes les cellules du carré.</p>
 	<p>Pour cet exercie vous pouvez modifiez la position initial du curseur.</p>	
 </div>
+
+
+<div class="description" data-id="4">
+	<h1>Suivre sa voie</h1>
+	<p>Jouons un peu avec l'instruction conditionnelle. Le but est de réécrire sur le chemin bleu pour le rendre vert. Pour ce faire il va falloir suivre le chemin.</p>
+	<p>L'approche proposée est la suivante, supposons que l'on se trouve sur une case verte, on va se déplacer sur les cases qui nous entoure pour tester laquelle est le prolongement du chemin. Pour ce faire on utilisera l'instruction conditionnelle <span class='mini-tile symbol-check'></span> <span class='mini-tile symbol-color5'></span>, si la case de la carte de donnée est <span class='mini-tile symbol-color5'></span> alors le curseur instruction se déplace à droite, sinon il se déplace vers le bas.</p>
+	<p>Lorsque l'on detecte une case bleu, on la repeint ( <span class='mini-tile symbol-write'></span> <span class='mini-tile symbol-color4'></span> ). On boucle ensuite sur l'état initial pour reprendre la série d'instruction depuis la nouvelle case</p>
+	
+</div>
+
+<div class="description" data-id="5">
+	<h1>Mathématiques</h1>
+	<p>Vous allez voir qu'il est possible de réalisez des opérations arithmétiques simples. Ici nous ferons l'addition de deux entiers.</p>
+	<h3>Représentation</h3>
+	<p>Un entier est X est représenté par X cellules vertes consécutives. On placera une cellule bleu tout à gauche afin de nous servir de repère.</p>
+	<div style='margin-left:10%'>
+	<p><small>par exemple le nombre 4: </small></p>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<p></p>
+	</div>
+	<p>On place les deux entiers en colonne : </p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<p><small>On souhaite qu'à la fin de l'exécution, le premier soit la somme des deux</small></p>
+	<div style='margin-left:10%'>
+	<p>4+2=6 </p>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	</div>
+	
+	<h3>Procédure</h3>
+	<p>On propose l'approche suivante : décrémenter de un le nombre de pas tout en incrémentant de un celui du haut, tant que le nombre du bas est différent de zéro.</p>
+	
+	
+</div>
+
 </div>
 
 
