@@ -19,6 +19,7 @@
 	vertical-align:middle;
 }
 
+
 .tile {
 	border-top:solid 1px #ddd;
 	border-left:solid 1px #ddd;
@@ -126,12 +127,15 @@ div.popUp {
 	opacity : 1;
 	
 	padding: 5px;
+	
+	z-index:99;
 }
 
 .toolBox-header {
 	cursor:move;
 	border-radius:5px;
 	margin-bottom:15px;
+	background-color:#eee;
 	-webkit-transition:background-color 0.5s ease;
 	-moz-transition:background-color 0.5s ease;
 	transition:background-color 0.5s ease;
@@ -148,7 +152,7 @@ div.toolBox {
 	right : 5px;
 	
 	width : 10%;
-	min-width:170px;
+	min-width:140px;
 	max-width:250px;
 	/*height : 40%;*/
 	min-height : 310px;
@@ -156,13 +160,22 @@ div.toolBox {
 	box-shadow : 0 0 5px 5px #666;
 	background-color: white;
 	
-	opacity : 1;
-	
 	padding: 5px;
+	padding-bottom:40px;
+	
+	z-index:99;
 
 
 }
-
+#container{
+	width:55%;
+	max-width:960px;
+	height:94%;
+	max-height:900px;
+	position:absolute;
+	top:2%;
+	left:34%;
+}
 #popUpLayer{
 	display:none;
 }
@@ -205,24 +218,67 @@ div  .selector  .liste .item {
 	display:inline-block;
 	background-size: cover;
 }
-.btn[title="speed down"]{
+.btn[data-action="speed-down"]{
 	background-image: url('ressource/speed-down-icon.png');
 }
-.btn[title="speed up"]{
+.btn[data-action="speed-up"]{
 	background-image: url('ressource/speed-up-icon.png');
 }
-.btn[title="next"]{
+.btn[data-action="play-next"]{
 	background-image: url('ressource/next-icon.png');
 }
-.btn[title="play"]{
+.btn[data-action="toggle-play"]{
 	background-image: url('ressource/play-icon.png');
 }
-.btn[title="route tracer"]{
+.btn[data-action="toggle-play"].paused{
+	background-image: url('ressource/pause-icon.png');
+}
+.btn[data-action="toggle-path-tracer"]{
 	background-image: url('ressource/route-tracer-icon.png');
 }
-.btn[title="eraser"]{
+.btn[data-action="toggle-eraser"]{
 	background-image: url('ressource/eraser-icon.png');
 }
-.btn[title="switch"]{
+.btn[data-action="toggle-pop-up-interaction"]{
 	background-image: url('ressource/gear-icon.png');
+}
+.btn[data-action="toggle-follow-cursor"]{
+	background-image: url('ressource/eye-icon.png');
+}
+
+#tools-box .btn:hover{
+	background-position:center 0px;
+}
+#tools-box .btn{
+	padding:2px;
+	border:none;
+	width:40px;
+	height:40px;
+	background-size:30px;
+	background-repeat:no-repeat;
+	background-position:center center;
+	-webkit-transition : background-size , background-position 0.5s ease;
+	margin-top:2px;
+}
+
+.nav-tabs{
+	margin-top:50px;
+}
+.nav-tabs > li > a{
+	padding-left:6px;
+	padding-right:3px;
+}
+
+/* bootstrap modification */
+
+.accordion-group.mine{
+	border:none;
+}
+.accordion-inner.mine{
+	padding:8px 0 0 0;
+}
+
+#tapeEventLayer,
+#tapeLayer{
+	margin-top:5px;
 }

@@ -3255,6 +3255,7 @@ Scene.createWithDim = function( w,h,eng,authorizerTape,authorizerInstruction ){
 };
 
 
+
 var ToolBox = function(){};
 ToolBox.prototype = {
 	
@@ -3265,206 +3266,232 @@ ToolBox.prototype = {
 	_mode : null,
 	
 	_containerPanel : null,
-	_scene:null,
+	scene:null,
 	element:null,
+	
+	$el:null,
+	
+	
+	_run : false,
+	_speeds : [ 1 , 2 , 5 , 10  , 30 , 90  ],
+	_cyclePerS : 0,
+	_cyclePartial : 0,
 	
 	init : function( scene ){
 		
-		
-		
-		
-		var element=$('<div>').attr( 'id' , 'toolLayer' ).addClass( "toolBox" )
-		var header=$('<div>').addClass('toolBox-header').css({'height':'50px'}).appendTo(element);
-		
-		var main = $("<div>")
-		//.css( {"position" : "absolute" , "top" : "0px" , "left" : "0px" } );
-		
-		
-		element.movable({target:header});
-		
-		this._panels = {
-			editing : EditingPanel.create( scene  ),
-			monitoring : MonitoringPanel.create( scene  ),
-		};
-		
-		
-		var self = this;
-		var nav = $('<ul class="nav nav-tabs">');
-		for(var i in this._panels)
-			(function(){
-				var j=i;
-				$('<li><a href="#'+i+'">'+i+'</a></li>')
-				.appendTo(nav)
-				.bind('click',function(){
-					self.switchMode(j);
-				});
-			})();
-		
-		
-		var common=$('<div>')
-		.appendTo(element);
-		
-		
-		$('<label class="checkbox"><input type="checkbox">pops up instructions</label>')
-		.appendTo(common)
-		.find('input').bind('change',function(e){
-				scene.popsUpBubble($(e.target).is(':checked'));
-		})
-		.attr('checked',true)
-		.change();
-		
-		$('<label class="checkbox"><input type="checkbox">follow the cursor</label>')
-		.appendTo(common)
-		.find('input').bind('change',function(e){
-				scene.followTapeCursor($(e.target).is(':checked')).followInstructionCursor($(e.target).is(':checked'));
-		})
-		.attr('checked',true)
-		.change();
-		
-		nav.appendTo( element );
-		main.appendTo( element );
-		
-		this._containerPanel = $("<div>").appendTo( element );
-		
-		this._mode = "editing";
 		this.scene=scene;
-		this.element=element;
 		
-		this.switchMode( );
-	},
-	getElement : function(){
-		return this.element;
-	},
-	switchMode : function( mode ){
-		if( mode == null )
-			mode = ( this._mode == "editing" ) ? "monitoring" : "editing";
+		this.$el=$('#tools-box');
 		
-		this._panels[ this._mode ].finish();
+		//bind actions
+		this.$el.find("[data-action=toggle-pop-up-interaction]")
+		.on('mousedown',$.proxy( this.togglePopUp , this ) )
+		.click()
+		.tooltip({'title':function(){
+			if( !$('#tools-box').find('[data-action=toggle-pop-up-interaction]').hasClass('active') )
+				return 'unable animation on running';
+			else
+				return 'disable animation on running';
+			},
+			'placement':'left',
+		 });
 		
-		this._panels[ mode ].prepare( this._containerPanel );
+		this.$el.find("[data-action=toggle-follow-cursor]")
+		.on('mousedown',$.proxy( this.toggleFollow , this ) )
+		.click()
+		.tooltip({'title':function(){
+			if( !$('#tools-box').find('[data-action=toggle-follow-cursor]').hasClass('active') )
+				return 'make the map follow the cursor';
+			else
+				return 'stop following the cursor';
+			},
+			'placement':'left',
+		 });
 		
-		this._mode = mode;
-	},
-
-};
-ToolBox.create = function( scene ){
-	var m = new ToolBox();
-	m.init( scene );
-	return m;
-}
-
-var MonitoringPanel = function(){};
-MonitoringPanel.prototype = {
-	
-	_scene : null,
-	
-	_el : null,
-	
-	_run : false,
-	
-	_speeds : [ 1 , 2 , 5 , 10  , 30 , 90  ],
-	_cyclePerS : 0,
-	
-	_cyclePartial : 0,
-	_ll:null,
-	
-	prepare : function( container ){
-
-		this._el.appendTo( container );
+		this.$el.find("[data-action=toggle-play]")
+		.on('mousedown',$.proxy( this.togglePlay , this ) );
 		
-		this._scene.getPhyTape().editable( false ).movable( true );
-		this._scene.getPhyInstr().editable( false ).movable( true );
-		
-		this._scene.cursorInstMovable(false).cursorTapeMovable(false);
-		
-		if(this._ll)
-			this._ll.resetCursor();
-	},
-	finish : function(){
-		
-		if( this._el && this._el.parent() )
-			this._el.detach();
-		
-		if( this._run )
-			this.stop();
-			
-		this._scene.getPhyTape().editable( false ).movable( false );
-		this._scene.getPhyInstr().editable( false ).movable( false );
-	},
-	
-	init : function( scene  ){
-		
-		this._scene   = scene;
+		this.$el.find("[data-action=play-next]")
+		.on('mousedown',$.proxy( this.next , this ) );
 		
 		
-		var self = this;
+		this.$el.find("[data-action=toggle-path-tracer]")
+		.on('mousedown',$.proxy( this.togglePathTrace , this ) )
+		.tooltip({'title':'route tracer tool'});
+		 
 		
-		var el = $("<div>");
+		this.$el.find("[data-action=toggle-eraser]")
+		.on('mousedown',$.proxy( this.toggleEraser , this ) )
+		.tooltip({'title':'eraser tool'});
 		
-		var nextBn = $('<div>').addClass("btn").attr( "title" , "next" );;
-		nextBn.mousedown( function( e ){
-			scene.getEngine().cycle();
+		this.$el.find('[data-action=speed-set]')
+		.on('change',$.proxy(this.changeSpeed,this))
+		.on('mousedown',function(e){
+			e.stopPropagation();
+		})
+		.change();
+		
+		this.$el.find('[data-action=speed-up]')
+		.on('mousedown',$.proxy(this.speedUp,this))
+		.tooltip({'title':'increase the running speed'});
+		
+		this.$el.find('[data-action=speed-down]')
+		.on('mousedown',$.proxy(this.speedDown,this))
+		.tooltip({'title':'decrease the running speed'});
+		
+		this.$el.find('.nav').find('a').on( 'mousedown' , function( e ){
+		  e.preventDefault();
+		  e.stopPropagation();
+		  $(this).tab('show');
 		});
 		
-		var playPauseBn = $('<div>').addClass("btn").addClass( "bn_paused" ).attr( "title" , "play" );
-		playPauseBn.mousedown( function( e ){
-			
-			if( self._run ){
-				self.stop();
-			} else {
-				self.start();
-			}
-		});
+		$( this.$el.find('.nav').find('[href=#monitoring]') )
+		.on('show',$.proxy( this.monitoringShow , this ) );
 		
-		var labelSpeed = $("<div>");
+		$( this.$el.find('.nav').find('[href=#editing]') )
+		.on('show',$.proxy( this.editingShow , this ) );
 		
-		var speedBn = $('<input type="range" min="0" max="5" >').addClass( "bn_paused" ).css({"width" : "100" });
-		speedBn[0].value = 0;
-		speedBn.change( function( e ){
-			self._cyclePerS = self._speeds[ e.target.value ];
-			self._cyclePartial = 0;
-			labelSpeed[0].innerHTML = self._cyclePerS+" cycle per seconde";
-		});
-		speedBn.change();
+		this.$el.movable();
 		
-		var speedDownBn = $('<div>').addClass("btn").attr( "title" , "speed down" );
-		speedDownBn.mousedown( function( e ){
-			speedBn[ 0 ].value = Math.max( 0 , parseInt( speedBn[ 0 ].value )-1 );
-			speedBn.change();
-		});
-		
-		var speedUpBn = $('<div>').addClass("btn").attr( "title" , "speed up" );
-		speedUpBn.mousedown( function( e ){
-			speedBn[ 0 ].value = Math.min( 5 , parseInt( speedBn[ 0 ].value )+1 );
-			speedBn.change();
-		});
-		
-		
-		var row=$('<div class="row-fluid">').appendTo(el);
-		nextBn.appendTo( row );
-		playPauseBn.appendTo( row );
-		labelSpeed.appendTo( el );
-		speedBn.appendTo( el );
-		
-		var row=$('<div class="row-fluid">').appendTo(el);
-		speedDownBn.appendTo( row );
-		speedUpBn.appendTo( row );
-		
-		
-		this._el = el;
 		
 		timeLine.registerListener({f:this.call,o:this});
+		$( this.$el.find('.nav').find('[href=#monitoring]') ).tab('show');
 	},
+	monitoringShow:function(){
+		this.scene.getPhyTape().pathTracable( false ).erasable( false ).editable( false ).movable( true );
+		this.scene.getPhyInstr().pathTracable( false ).erasable( false ).editable( false ).movable( true );
+		
+		this.$el.find("[data-action=toggle-path-tracer]").removeClass('active');
+		this.$el.find("[data-action=toggle-eraser]").removeClass('active');
+		
+		this.scene.cursorInstMovable(false).cursorTapeMovable(false);
+		if(this._ll){
+			this._ll.resetCursor();
+			this._ll.reset();
+		}
+	},
+	editingShow:function(){
+		
+		this.scene.getPhyTape().pathTracable( false ).erasable( false ).editable( true ).movable( true );
+		this.scene.getPhyInstr().pathTracable( false ).erasable( false ).editable( true ).movable( true );
+		
+		this.scene.cursorInstMovable(true).cursorTapeMovable(true);
+	},
+	toggleEraser:function(e){
+		var active= !this.$el.find("[data-action=toggle-eraser]").hasClass('active');
+		
+		if( active ){
+			this.scene.getPhyTape().movable( false ).pathTracable( false ).erasable( true );
+			this.scene.getPhyInstr().movable( false ).pathTracable( false ).erasable( true );
+			
+			this.$el.find("[data-action=toggle-path-tracer]").removeClass('active');
+		}else{
+			this.scene.getPhyTape().erasable( false );
+			this.scene.getPhyInstr().erasable( false );
+			
+			
+			if( this.$el.find("[data-action=toggle-path-tracer]").hasClass('active') ){
+				this.scene.getPhyTape().movable( false ).pathTracable( true );
+				this.scene.getPhyInstr().movable( false ).pathTracable( true );
+			}else{
+				this.scene.getPhyTape().pathTracable( false ).movable( true );
+				this.scene.getPhyInstr().pathTracable( false ).movable( true );
+			}
+		}
+	},
+	swapmode:function(s){
+				
+	},
+	togglePathTrace:function(e){
+		var active= !this.$el.find("[data-action=toggle-path-tracer]").hasClass('active');
+		
+		if( active ){
+			this.scene.getPhyTape().movable( false ).erasable( false ).pathTracable( true );
+			this.scene.getPhyInstr().movable( false ).erasable( false ).pathTracable( true );
+			
+			this.$el.find("[data-action=toggle-eraser]").removeClass('active');
+		}else{
+			this.scene.getPhyTape().pathTracable( false );
+			this.scene.getPhyInstr().pathTracable( false );
+			
+			
+			if( this.$el.find("[data-action=toggle-eraser]").hasClass('active') ){
+				this.scene.getPhyTape().movable( false ).erasable( true );
+				this.scene.getPhyInstr().movable( false ).erasable( true );
+			}else{
+				this.scene.getPhyTape().erasable( false ).movable( true );
+				this.scene.getPhyInstr().erasable( false ).movable( true );
+			}
+		}
+		
+	},
+	speedUp:function(e){
+		var setbar=this.$el.find('[data-action=speed-set]');
+		setbar.attr('value' ,  Math.min( this._speeds.length , parseInt(setbar.attr('value'))+1 ) );
+		setbar.change();
+		
+		e.preventDefault();
+		e.stopPropagation();
+	},
+	speedDown:function(e){
+		var setbar=this.$el.find('[data-action=speed-set]');
+		setbar.attr('value' ,  Math.max( 0 , parseInt(setbar.attr('value'))-1 ) );
+		setbar.change();
+		
+		e.preventDefault();
+		e.stopPropagation();
+	},
+	changeSpeed:function(e){
+		this._cyclePerS = this._speeds[ this.$el.find('[data-action=speed-set]').attr('value') ];
+		this._cyclePartial = 0;
+		this.$el.find("[data-action=number-cycle]")
+		.empty()
+		.wrapInner( this._cyclePerS );
+		
+		e.preventDefault();
+		e.stopPropagation();
+	},
+	togglePlay:function(e){
+		var active=!this.$el.find("[data-action=toggle-play]").hasClass('active');
+		
+		if(active)
+			this.start();
+		else
+			this.stop();
+		
+		//e.preventDefault();
+		//e.stopPropagation();
+	},
+	next:function(e){
+		this.scene.getEngine().cycle();
+		e.preventDefault();
+		e.stopPropagation();
+	},
+	togglePopUp:function(e){
+		var active=!this.$el.find("[data-action=toggle-pop-up-interaction]").hasClass('active');
+		this.scene.popsUpBubble( active );
+		e.preventDefault();
+		e.stopPropagation();
+	},
+	toggleFollow:function(e){
+		var active=!this.$el.find("[data-action=toggle-follow-cursor]").hasClass('active');
+		this.scene
+		.followTapeCursor( active )
+		.followInstructionCursor( active );
+		e.preventDefault();
+		e.stopPropagation();
+	},
+	
+	
+	
 	start : function( ){
 		this._run = true;
 		this._cyclePartial = 0;
-		this._el.find('.btn[title="play"]').addClass( "bn_running" ).removeClass( "bn_paused" );
-		this._el.find('.btn[title="next"]').hide();
+		this.$el.find("[data-action=toggle-play]").addClass('paused');
 	},
 	stop : function(){
 		this._run = false;
-		this._el.find('.btn[title="play"]').removeClass( "bn_running" ).addClass( "bn_paused" );
-		this._el.find('.btn[title="next"]').show();
+		this.$el.find("[data-action=toggle-play]").removeClass('paused');
 	},
 	call : function( delta ){
 		
@@ -3474,109 +3501,21 @@ MonitoringPanel.prototype = {
 		var n = delta / 1000 * this._cyclePerS + this._cyclePartial;
 		
 		for( var i = 0 ; i < Math.floor( n ) ; i ++ )
-			this._scene.getEngine().cycle();
+			this.scene.getEngine().cycle();
 		this._cyclePartial = n%1;
 	},
-};
-MonitoringPanel.create = function( engine , mapInstr , mapTape ){
-	var m = new MonitoringPanel();
-	m.init( engine , mapInstr , mapTape );
-	return m;
-}
-
-var EditingPanel = function(){};
-EditingPanel.prototype = {
 	
-	_scene : null,
 	
-	_el : null,
-	
-	_state : 0,
-	
-	prepare : function( container ){
-
-		this._el.appendTo( container );
-		
-		this._scene.getPhyTape().editable( true ).movable( true );
-		this._scene.getPhyInstr().editable( true ).movable( true );
-		
-		this._scene.cursorInstMovable(true).cursorTapeMovable(true);
-	},
-	finish : function(){
-		
-		if( this._el && this._el.parent() )
-			this._el.detach();
-			
-		this._scene.getPhyTape().editable( false ).movable( false ).pathTracable( false ).erasable( false );
-		this._scene.getPhyInstr().editable( false ).movable( false ).pathTracable( false ).erasable( false );
-	},
-	
-	init : function( scene  ){
-		
-		this._scene   = scene;
-		
-		var self = this;
-		
-		var el = $("<div>");
-		
-		var routeBn = $('<div>').addClass("btn").attr( "title" , "route tracer" ).attr( "data-actived" , "false" );
-		routeBn.mousedown( function( e ){
-			self.changeState( 1 );
-			routeBn.attr( "data-actived" , ( self.state == 1 )? "true" : "false" );
-		});
-		routeBn.appendTo( el );
-		
-		var eraserBn = $('<div>').addClass("btn").attr( "title" , "eraser" ).attr( "data-actived" , "false" );
-		eraserBn.mousedown( function( e ){
-			self.changeState( 2 );
-			eraserBn.attr( "data-actived" , ( self.state == 2 )? "true" : "false" );
-		});
-		eraserBn.appendTo( el );
-		
-		this._el = el;
-		
-	},
-	changeState : function( s ){
-		
-		this._scene.getPhyTape().pathTracable( false ).erasable( false );
-		this._scene.getPhyInstr().pathTracable( false ).erasable( false );
-		
-		if( this._state == s )
-			s = 0;
-		
-		$('.btn[data-actived]').attr( "data-actived" , "false" ).removeClass('btn-info');
-		
-		switch( s ){
-			case 0 :
-				this._scene.getPhyTape().movable( true );
-				this._scene.getPhyInstr().movable( true );
-			break;
-			
-			case 1 :
-				this._scene.getPhyTape().movable( false ).pathTracable( true );
-				this._scene.getPhyInstr().movable( false ).pathTracable( true );
-				$('.btn[title="route tracer"]').attr( "data-actived" , "true" ).addClass('btn-info');
-			break;
-			
-			case 2 :
-				this._scene.getPhyTape().movable( false ).erasable( true );
-				this._scene.getPhyInstr().movable( false ).erasable( true );
-				$('.btn[title="eraser"]').attr( "data-actived" , "true" ).addClass('btn-info');
-			break;
-		}
-		
-		this._state = s;
-		
+	getElement : function(){
+		return this.$el;
 	},
 	
 };
-EditingPanel.create = function( engine , mapInstr , mapTape ){
-	var m = new EditingPanel();
-	m.init( engine , mapInstr , mapTape );
+ToolBox.create = function( scene ){
+	var m = new ToolBox();
+	m.init( scene );
 	return m;
 }
-
-
 
 
 var Bubble=function(){};
@@ -3818,6 +3757,13 @@ LevelsLoader.prototype={
 		if( force || !lvl.authorizerInstruction.cursorCtrl )
 			this.engine.setCursorInstr(lvl.cursorInstruction.x,lvl.cursorInstruction.y);
 	},
+	reset:function(){
+		var lvl=levels[this.level];
+		var tape=this.engine.getTape();
+		tape.reset();
+		for(var i=0;i<lvl.writeManualTape.length;i++)
+			tape.write(lvl.writeManualTape[i].x,lvl.writeManualTape[i].y,lvl.writeManualTape[i].s);
+	},
 	resetMaps:function(){
 		var lvl=levels[this.level];
 		
@@ -3852,7 +3798,7 @@ LevelsLoader.prototype={
 		//load the html description
 		if( this.descriptionLayer ){
 			this.descriptionLayer.children().remove();
-			this.descriptionLayer.empty().wrapInner(lvl.description[ this.descriptionLayer.attr('lang')||'fr' ] );
+			this.descriptionLayer.empty().wrapInner( $(".descriptionPool[lang=fr]").children(".description[data-id="+this.level+"]").html() );
 			
 		}
 		if( this.navigationLayer){
@@ -4035,8 +3981,8 @@ window.onload = function(){
 	
 	var tb=ToolBox.create( scene  );
 	
-	tb._panels.monitoring._ll=ll;
-	ll._monitoring=tb._panels.monitoring;
+	tb._ll=ll;
+	ll._monitoring=tb;
 	
 	tb.getElement().appendTo( $("body") ).css({'z-index':50});
 	
