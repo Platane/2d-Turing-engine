@@ -20,4 +20,5 @@ see proto at [platane.github.com/2d-Turing-engine/trg](http://platane.github.com
  * Language select option
  * Add prev btn to go to the previous exercice
   * may be add a exercice navigator 1 | 2 | 3 | ..
+ * Screenshot for advanced tool explanation
  
