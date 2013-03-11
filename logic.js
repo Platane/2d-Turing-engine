@@ -947,12 +947,58 @@ extend( CmdMoveCursor , {
 	},
 	toString : function(){ return "move the cursor ";},
 } );
-CmdMoveCursor.create = function( one , engine , oldP , newP , update ){
+CmdMoveCursor.create = function( one , engine , newP , update ){
 	var m = new CmdMoveCursor();
-	m.init( one , engine , oldP , newP , update );
+	m.init( one , engine , newP , update );
 	return m;
 }
 
+var CmdResetMap = function(){};
+extend( CmdResetMap , AbstractCmd.prototype );
+extend( CmdResetMap , {	
+	_manual : null,
+	_map : null,
+	_update : null,
+	init : function( map , update  ){
+		
+		this._map = map;
+		this._manual = map.getRewriteManual();
+		this._update = update;
+		
+		this._state = STATE_READY;
+	},
+	
+	execute : function( ){
+		if( this._state != STATE_READY )
+			return false;
+		
+		
+		this._map.reset();
+		if( this._update )
+			this._update.f.call( this._update.o );
+		
+		this._state = STATE_SUCCESS;
+		return true;
+	},
+	undo : function( ){
+		if( this._state != STATE_SUCCESS )
+			return false;
+		
+		for(var i=0;i<this._manual.length;i++)
+			tape.write(this._manual[i].x,this._manual[i].y,this._manual[i].s);
+		if( this._update )
+			this._update.f.call( this._update.o );
+			
+		this._state = STATE_CANCEL;
+		return true;
+	},
+	toString : function(){ return "reset";},
+} );
+CmdResetMap.create = function( map , update ){
+	var c = new CmdResetMap();
+	c.init( map , update );
+	return c;
+};
 
 
 var CmdMgr = function(){};
@@ -1009,11 +1055,25 @@ scope.moveCursor = CmdMoveCursor;
 scope.writeMap = CmdWriteMap;
 scope.multi = CmdMultiple;
 scope.mgr = CmdMgr.create();
-
+scope.resetMap = CmdResetMap;
 
 })( cmd );
 
-
+	//// ctrl z - ctrl y listener
+	$(document).ready(function(){
+		$(document).on('keyup' , function(e){
+			if(!e.ctrlKey)
+				return;
+			switch(e.which){
+				case 90:
+					cmd.mgr.undo();
+				break;
+				case 89:
+					cmd.mgr.redo();
+				break;
+			}
+		});
+	});
 
 
 /**
@@ -3254,7 +3314,112 @@ Scene.createWithDim = function( w,h,eng,authorizerTape,authorizerInstruction ){
 	return md;
 };
 
-
+var EnginePlayer = function(){};
+extend( EnginePlayer , AbstractNotifier.prototype );
+extend( EnginePlayer , {
+	engine:null,
+	ll:null,
+	
+	_cyclePerS:null,
+	_cyclePartial:null,
+	_run:false,
+	
+	init:function(engine,ll){
+		this.engine=engine;
+		this.ll=ll;
+		timeLine.registerListener({f:this.call,o:this});
+		
+		this._cyclePartial=0;
+		this._cyclePerS=0;
+		
+		if( this.ll )
+			this.ll.registerListener( 'set-level' ,{f:function(){ this.reset(); } , o:this} );
+			
+		
+	},
+	setSpeed:function(v){
+		if( this._cyclePerS == v )
+			return;
+		this._cyclePerS = v;
+		this.notify("set-speed");
+	},
+	isRunning:function(){
+		return this._run;
+	},
+	getSpeed:function(){
+		return this._cyclePerS
+	},
+	next:function(){
+		this.engine.cycle();
+	},
+	start : function( ){
+		if(this._run)
+			return;
+		this._run = true;
+		this._cyclePartial = 0;
+		this.notify('start');
+	},
+	stop : function(){
+		if(!this._run)
+			return;
+		this._run = false;
+		this.notify('stop');
+	},
+	call : function( delta ){
+		
+		if( !this._run )
+			return;
+		
+		var n = delta / 1000 * this._cyclePerS + this._cyclePartial;
+		
+		for( var i = 0 ; i < Math.floor( n ) ; i ++ )
+			this.engine.cycle();
+		this._cyclePartial = n%1;
+	},
+	reset : function(options){
+		options=options||{};
+		var cursor		= options.cursor!=null?options.cursor:true;
+		var map			= options.map!=null?options.map:true;
+		var instruction	= options.instruction!=null?options.instruction:true;
+		var tape		= options.tape!=null?options.tape:true;
+		var solution 	= options.solution!=null?options.solution:false;
+		var undoable 	= options.undoable!=null?options.undoable:true;
+		
+		var t=[];
+		
+		if( map && instruction ){
+			var instruction = this.engine.getInstruction();
+			var rewriteManual = this.ll.getLvl() ? ( solution ? this.ll.getLvl().writeManualInstructionSolution : this.ll.getLvl().writeManualInstruction ) : [];
+			
+			t.push( cmd.resetMap.create( instruction ) );
+			for(var i=0;i<rewriteManual.length;i++)
+				t.push( cmd.writeMap.create( instruction , rewriteManual[i] , rewriteManual[i].s ) );
+		}
+		if( map && tape ){
+			var tape = this.engine.getTape();
+			var rewriteManual = this.ll.getLvl() ? ( solution ? this.ll.getLvl().writeManualTapeSolution : this.ll.getLvl().writeManualTape ) : [];
+			
+			t.push( cmd.resetMap.create( tape ) );
+			for(var i=0;i<rewriteManual.length;i++)
+				t.push( cmd.writeMap.create( tape , rewriteManual[i] , rewriteManual[i].s ) );
+		}
+		if( cursor && instruction ){
+			var cursorp = this.ll.getLvl() ? this.ll.getLvl().cursorInstruction : {x:0, y:0};
+			t.push( cmd.moveCursor.create( 'instruction' , this.engine , cursorp ) );
+		}
+		if( cursor && tape ){
+			var cursorp = this.ll.getLvl() ? this.ll.getLvl().cursorTape : {x:0, y:0};
+			t.push( cmd.moveCursor.create( 'tape' , this.engine , cursorp ) );
+		}
+		if(t.length>0)
+			cmd.mgr.execute( cmd.multi.createWithTab(t) );
+	},
+});
+EnginePlayer.create=function(engine,ll){
+	var e=new EnginePlayer();
+	e.init(engine,ll);
+	return e;
+};
 
 var ToolBox = function(){};
 ToolBox.prototype = {
@@ -3271,15 +3436,16 @@ ToolBox.prototype = {
 	
 	$el:null,
 	
-	
-	_run : false,
 	_speeds : [ 1 , 2 , 5 , 10  , 30 , 90  ],
-	_cyclePerS : 0,
-	_cyclePartial : 0,
 	
-	init : function( scene ){
+	engineplayer:null,
+	ll:null,
+	
+	init : function( scene , engineplayer , ll ){
 		
 		this.scene=scene;
+		this.engineplayer=engineplayer;
+		this.ll=ll;
 		
 		this.$el=$('#tools-box');
 		
@@ -3333,11 +3499,21 @@ ToolBox.prototype = {
 		
 		this.$el.find('[data-action=speed-up]')
 		.on('mousedown',$.proxy(this.speedUp,this))
-		.tooltip({'title':'increase the running speed'});
+		.tooltip({'title':'increase the running speed','placement':'bottom'});
 		
 		this.$el.find('[data-action=speed-down]')
 		.on('mousedown',$.proxy(this.speedDown,this))
-		.tooltip({'title':'decrease the running speed'});
+		.tooltip({'title':'decrease the running speed','placement':'bottom'});
+		
+		
+		this.$el.find('[data-action=reset-tape]')
+		.on('mousedown',$.proxy(this.resetTape,this))
+		.tooltip({'title':'reset the tape map and its cursor'})
+		
+		this.$el.find('[data-action=reset-instruction]')
+		.on('mousedown',$.proxy(this.resetInstruction,this))
+		.tooltip({'title':'reset the instruction map and its cursor'})
+		
 		
 		this.$el.find('.nav').find('a').on( 'mousedown' , function( e ){
 		  e.preventDefault();
@@ -3354,8 +3530,14 @@ ToolBox.prototype = {
 		this.$el.movable();
 		
 		
-		timeLine.registerListener({f:this.call,o:this});
+		
+		engineplayer.registerListener('start',{o:this,f:this.runningChanged});
+		engineplayer.registerListener('stop',{o:this,f:this.runningChanged});
+		
+		engineplayer.registerListener('set-speed',{o:this,f:this.speedChanged});
+		
 		$( this.$el.find('.nav').find('[href=#monitoring]') ).tab('show');
+		
 	},
 	monitoringShow:function(){
 		this.scene.getPhyTape().pathTracable( false ).erasable( false ).editable( false ).movable( true );
@@ -3365,10 +3547,9 @@ ToolBox.prototype = {
 		this.$el.find("[data-action=toggle-eraser]").removeClass('active');
 		
 		this.scene.cursorInstMovable(false).cursorTapeMovable(false);
-		if(this._ll){
-			this._ll.resetCursor();
-			this._ll.reset();
-		}
+		
+		if( this.ll )
+			this.engineplayer.reset({'instruction':false,'tape':true,'undoable':false});
 	},
 	editingShow:function(){
 		
@@ -3376,6 +3557,22 @@ ToolBox.prototype = {
 		this.scene.getPhyInstr().pathTracable( false ).erasable( false ).editable( true ).movable( true );
 		
 		this.scene.cursorInstMovable(true).cursorTapeMovable(true);
+	},
+	resetTape:function(e){
+		
+		this.engineplayer.stop();
+		this.engineplayer.reset({'instruction':false,'tape':true});
+		
+		e.preventDefault();
+		e.stopPropagation();
+	},
+	resetInstruction:function(e){
+		
+		this.engineplayer.stop();
+		this.engineplayer.reset({'instruction':true,'tape':false});
+		
+		e.preventDefault();
+		e.stopPropagation();
 	},
 	toggleEraser:function(e){
 		var active= !this.$el.find("[data-action=toggle-eraser]").hasClass('active');
@@ -3398,9 +3595,6 @@ ToolBox.prototype = {
 				this.scene.getPhyInstr().pathTracable( false ).movable( true );
 			}
 		}
-	},
-	swapmode:function(s){
-				
 	},
 	togglePathTrace:function(e){
 		var active= !this.$el.find("[data-action=toggle-path-tracer]").hasClass('active');
@@ -3426,41 +3620,40 @@ ToolBox.prototype = {
 		
 	},
 	speedUp:function(e){
-		var setbar=this.$el.find('[data-action=speed-set]');
-		setbar.attr('value' ,  Math.min( this._speeds.length , parseInt(setbar.attr('value'))+1 ) );
-		setbar.change();
+		var s=this.engineplayer.getSpeed();
+		
+		for(var i=0;i<this._speeds.length && s!=this._speeds[i];i++);
+			
+		this.engineplayer.setSpeed( this._speeds[ Math.min(this._speeds.length-1,i+1) ] );
 		
 		e.preventDefault();
 		e.stopPropagation();
 	},
 	speedDown:function(e){
-		var setbar=this.$el.find('[data-action=speed-set]');
-		setbar.attr('value' ,  Math.max( 0 , parseInt(setbar.attr('value'))-1 ) );
-		setbar.change();
+		var s=this.engineplayer.getSpeed();
+		
+		for(var i=0;i<this._speeds.length && s!=this._speeds[i];i++);
+			
+		this.engineplayer.setSpeed( this._speeds[ Math.max(0,i-1) ] );
 		
 		e.preventDefault();
 		e.stopPropagation();
 	},
 	changeSpeed:function(e){
-		this._cyclePerS = this._speeds[ this.$el.find('[data-action=speed-set]').attr('value') ];
-		this._cyclePartial = 0;
-		this.$el.find("[data-action=number-cycle]")
-		.empty()
-		.wrapInner( this._cyclePerS );
+		
+		this.engineplayer.setSpeed( this._speeds[ parseInt(this.$el.find('[data-action=speed-set]').attr('value')) ] );
 		
 		e.preventDefault();
 		e.stopPropagation();
 	},
 	togglePlay:function(e){
-		var active=!this.$el.find("[data-action=toggle-play]").hasClass('active');
-		
-		if(active)
-			this.start();
+		if(!this.engineplayer.isRunning())
+			this.engineplayer.start();
 		else
-			this.stop();
+			this.engineplayer.stop();
 		
-		//e.preventDefault();
-		//e.stopPropagation();
+		e.preventDefault();
+		e.stopPropagation();
 	},
 	next:function(e){
 		this.scene.getEngine().cycle();
@@ -3482,38 +3675,32 @@ ToolBox.prototype = {
 		e.stopPropagation();
 	},
 	
-	
-	
-	start : function( ){
-		this._run = true;
-		this._cyclePartial = 0;
-		this.$el.find("[data-action=toggle-play]").addClass('paused');
+	runningChanged:function(){
+		if( this.engineplayer.isRunning() )
+			this.$el.find("[data-action=toggle-play]").addClass('paused').addClass('active');
+		else
+			this.$el.find("[data-action=toggle-play]").removeClass('paused').removeClass('active');
 	},
-	stop : function(){
-		this._run = false;
-		this.$el.find("[data-action=toggle-play]").removeClass('paused');
-	},
-	call : function( delta ){
+	speedChanged:function(){
+		var s=this.engineplayer.getSpeed();
 		
-		if( !this._run )
-			return;
+		for(var i=0;i<this._speeds.length && s!=this._speeds[i];i++);
 		
-		var n = delta / 1000 * this._cyclePerS + this._cyclePartial;
+		this.$el.find('[data-action=speed-set]').attr('value' , i );
 		
-		for( var i = 0 ; i < Math.floor( n ) ; i ++ )
-			this.scene.getEngine().cycle();
-		this._cyclePartial = n%1;
-	},
-	
+		this.$el.find("[data-action=number-cycle]")
+		.empty()
+		.wrapInner( s );
+	},	
 	
 	getElement : function(){
 		return this.$el;
 	},
 	
 };
-ToolBox.create = function( scene ){
+ToolBox.create = function( scene , engineplayer , ll ){
 	var m = new ToolBox();
-	m.init( scene );
+	m.init( scene , engineplayer , ll );
 	return m;
 }
 
@@ -3732,7 +3919,8 @@ BubbleEmitter.create = function( engine , containerInstruction , containerTape ,
 
 
 var LevelsLoader=function(){};
-LevelsLoader.prototype={
+extend( LevelsLoader , AbstractNotifier.prototype );
+extend( LevelsLoader , {
 	engine:null,
 	authorizerTape:null,
 	authorizerInstruction:null,
@@ -3743,101 +3931,31 @@ LevelsLoader.prototype={
 		this.engine=engine;
 		this.authorizerTape=authorizerTape;
 		this.authorizerInstruction=authorizerInstruction;
-		
 	},
 	next:function(){
-		this.level++;
-		this.loadLevel(levels[this.level]);
-		this._monitoring.stop();
+		this.level = Math.min( this.level+1 , levels.length-1 );
+		this.load();
+		this.notify('set-level');
 	},
-	resetCursor:function(force){
-		var lvl=levels[this.level];
-		if( force || !lvl.authorizerTape.cursorCtrl )
-			this.engine.setCursorTape(lvl.cursorTape.x,lvl.cursorTape.y);
-		if( force || !lvl.authorizerInstruction.cursorCtrl )
-			this.engine.setCursorInstr(lvl.cursorInstruction.x,lvl.cursorInstruction.y);
+	prev:function(){
+		this.level = Math.max( this.level-1 , 0 );
+		this.load();
+		this.notify('set-level');
 	},
-	reset:function(){
-		var lvl=levels[this.level];
-		var tape=this.engine.getTape();
-		tape.reset();
-		for(var i=0;i<lvl.writeManualTape.length;i++)
-			tape.write(lvl.writeManualTape[i].x,lvl.writeManualTape[i].y,lvl.writeManualTape[i].s);
+	gotoLvl:function(v){
+		this.level = v;
+		this.load();
+		this.notify('set-level');
 	},
-	resetMaps:function(){
-		var lvl=levels[this.level];
-		
-		var tape=this.engine.getTape();
-		tape.reset();
-		for(var i=0;i<lvl.writeManualTape.length;i++)
-			tape.write(lvl.writeManualTape[i].x,lvl.writeManualTape[i].y,lvl.writeManualTape[i].s);
-			
-		var instruction=this.engine.getInstruction();
-		instruction.reset();
-		for(var i=0;i<lvl.writeManualInstruction.length;i++)
-			instruction.write(lvl.writeManualInstruction[i].x,lvl.writeManualInstruction[i].y,lvl.writeManualInstruction[i].s);
+	getLvl:function(){
+		return levels[this.level];
 	},
-	loadLevel:function(lvl){
+	load:function(){
 		
-		var tape=this.engine.getTape();
-		tape.reset();
-		for(var i=0;i<lvl.writeManualTape.length;i++)
-			tape.write(lvl.writeManualTape[i].x,lvl.writeManualTape[i].y,lvl.writeManualTape[i].s);
-		this.engine.setCursorTape(lvl.cursorTape.x,lvl.cursorTape.y);
-		
-		
-		var instruction=this.engine.getInstruction();
-		instruction.reset();
-		for(var i=0;i<lvl.writeManualInstruction.length;i++)
-			instruction.write(lvl.writeManualInstruction[i].x,lvl.writeManualInstruction[i].y,lvl.writeManualInstruction[i].s);
-		this.engine.setCursorInstr(lvl.cursorInstruction.x,lvl.cursorInstruction.y);
+		var lvl=this.getLvl();
 		
 		this.authorizerInstruction.init( lvl.authorizerInstruction.defaultValue , lvl.authorizerInstruction.exceptions , lvl.authorizerInstruction.cursorCtrl );
 		this.authorizerTape.init( lvl.authorizerTape.defaultValue , lvl.authorizerTape.exceptions , lvl.authorizerTape.cursorCtrl );
-		
-		//load the html description
-		if( this.descriptionLayer ){
-			this.descriptionLayer.children().remove();
-			this.descriptionLayer.empty().wrapInner( $(".descriptionPool[lang=fr]").children(".description[data-id="+this.level+"]").html() );
-			
-		}
-		if( this.navigationLayer){
-			var self=this;
-			this.navigationLayer.find('.btn[data-action="next"]')
-			.removeClass('btn-success')
-			.unbind('click')
-			.bind('click',function(){self.next();});
-			
-			this.navigationLayer.find('.btn[data-action="solution"]')
-			.unbind('click')
-			.bind('click',function(){
-				instruction.reset();
-				for(var i=0;i<lvl.writeManualInstructionSolution.length;i++)
-					instruction.write(lvl.writeManualInstructionSolution[i].x,lvl.writeManualInstructionSolution[i].y,lvl.writeManualInstructionSolution[i].s);
-					
-				tape.reset();
-				for(var i=0;i<lvl.writeManualTapeSolution.length;i++)
-					tape.write(lvl.writeManualTapeSolution[i].x,lvl.writeManualTapeSolution[i].y,lvl.writeManualTapeSolution[i].s);
-				
-				self.resetCursor(true);
-				self._monitoring.stop();
-			});
-			
-			this.navigationLayer.find('.btn[data-action="reset"]')
-			.unbind('click')
-			.bind('click',function(){
-				instruction.reset();
-				for(var i=0;i<lvl.writeManualInstruction.length;i++)
-					instruction.write(lvl.writeManualInstruction[i].x,lvl.writeManualInstruction[i].y,lvl.writeManualInstruction[i].s);
-					
-				tape.reset();
-				for(var i=0;i<lvl.writeManualTape.length;i++)
-					tape.write(lvl.writeManualTape[i].x,lvl.writeManualTape[i].y,lvl.writeManualTape[i].s);
-				
-				self.resetCursor(true);
-				self._monitoring.stop();
-			});
-		}
 		
 		//win test
 		this.wintests={};
@@ -3875,17 +3993,69 @@ LevelsLoader.prototype={
 				return;
 		
 		//ok!
-		if( !this.navigationLayer )
-			this.next();
-		else{
-			this.navigationLayer.find('.btn[data-action="next"]').addClass("btn-success");
-		}
+		this.notify('win');
 	},
-};
+});
 LevelsLoader.create=function(engine,authorizerTape,authorizerInstruction){
 	var ll=new LevelsLoader();
 	ll.init(engine,authorizerTape,authorizerInstruction);
 	return ll;
+};
+
+var DecriptionPanelView=function(){};
+DecriptionPanelView.prototype={
+	navigation:null,
+	description:null,
+	
+	engineplayer:null,
+	ll:null,
+	
+	init:function(engineplayer,ll,description,navigation){
+		this.navigation=navigation;
+		this.description=description;
+		
+		this.engineplayer=engineplayer;
+		this.ll=ll;
+		
+		
+		for( var i=0;i<levels.length;i++)
+			this.navigation.find('.btn-group').append( $('<button class="btn" data-i="'+i+'">'+(i+1)+'</button>') );
+		
+		this.navigation.find('.btn-group .btn')
+		.on('click' , $.proxy( function(e){ this.ll.gotoLvl( parseInt( $(e.target).attr('data-i') ) ); } ,this ) );
+		
+		this.navigation.find('.btn[data-action="next"]')
+		.on('click' , $.proxy( function(e){ this.engineplayer.stop(); this.ll.next(); } ,this ) );
+		
+		this.navigation.find('.btn[data-action="solution"]')
+		.on('click' , $.proxy( function(e){ this.engineplayer.stop(); this.engineplayer.reset({'solution':true}); } ,this ) );
+		
+		this.ll.registerListener( 'set-level' , {o:this,f:this.loadLevel} );
+		this.ll.registerListener( 'win' , {o:this,f:this.win} );
+	},
+	loadLevel:function(){
+		var lvl=this.ll.getLvl();
+		
+		//load the html description
+		this.description.children().remove();
+		this.description.empty().wrapInner( $(".descriptionPool[lang=fr]").children(".description[data-id="+this.ll.level+"]").html() );
+		
+		//reset btn
+		this.navigation.find('.btn[data-action="next"]')
+		.removeClass('btn-success');
+			
+		this.navigation.find('.btn-group .btn').removeClass('active')
+		this.navigation.find('.btn-group .btn[data-i='+this.ll.level+']').addClass('active');
+	},
+	win:function(){
+		this.navigation.find('.btn[data-action="next"]').addClass("btn-success");
+		this.navigation.find('.btn-group .btn[data-i='+this.ll.level+']').addClass("btn-success");
+	},
+};
+DecriptionPanelView.create=function(engineplayer,ll,description,navigation){
+	var a=new DecriptionPanelView();
+	a.init(engineplayer,ll,description,navigation);
+	return a;
 };
 
 var Authorizer=function(){};
@@ -3914,6 +4084,9 @@ Authorizer.create=function(defaultValue,exceptions,cursorCtrl){
 	return a;
 };
 
+
+scope.DecriptionPanelView = DecriptionPanelView;
+scope.EnginePlayer = EnginePlayer;
 scope.TuringEngine = TuringEngine;
 scope.Authorizer = Authorizer;
 scope.Scene = Scene;
@@ -3957,6 +4130,11 @@ window.onload = function(){
 	
 	var engine=TuringEngine.create( SocialMap.create() , tape  );
 	
+	ll=LevelsLoader.create(engine,authorizerTape,authorizerInstruction);
+	
+	var engineplayer = EnginePlayer.create(engine,ll);
+	
+	
 	var container=$("#container");
 	console.log(container.width());
 	
@@ -3964,10 +4142,8 @@ window.onload = function(){
 	scene.getElement().appendTo( $("#container") );
 	//.css({'position':'absolute' , 'top':'130px' , 'left':'20%' });
 	
+	DecriptionPanelView.create( engineplayer , ll , $('#description') , $('#navigation') )
 	
-	ll=LevelsLoader.create(engine,authorizerTape,authorizerInstruction);
-	ll.descriptionLayer=$('#description');
-	ll.navigationLayer=$('#navigation');
 	/*
 	for( var i = 50 ; i >= 0 ; i -- )
 	for( var j = 50 ; j >= 0 ; j -- )
@@ -3979,14 +4155,13 @@ window.onload = function(){
 	
 	instruction=scene.getPhyInstr();
 	
-	var tb=ToolBox.create( scene  );
-	
-	tb._ll=ll;
-	ll._monitoring=tb;
+	var tb=ToolBox.create( scene , engineplayer , ll  );
 	
 	tb.getElement().appendTo( $("body") ).css({'z-index':50});
 	
+	//init
 	ll.next();
+	
 	
 	var stats = new Stats();
 	stats.setMode(0); // 0: fps, 1: ms
