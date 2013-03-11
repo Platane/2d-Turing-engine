@@ -3449,6 +3449,12 @@ ToolBox.prototype = {
 		
 		this.$el=$('#tools-box');
 		
+		engineplayer.registerListener('start',{o:this,f:this.runningChanged});
+		engineplayer.registerListener('stop',{o:this,f:this.runningChanged});
+		engineplayer.registerListener('set-speed',{o:this,f:this.speedChanged});
+		
+		
+		
 		//bind actions
 		this.$el.find("[data-action=toggle-pop-up-interaction]")
 		.on('mousedown',$.proxy( this.togglePopUp , this ) )
@@ -3529,13 +3535,7 @@ ToolBox.prototype = {
 		
 		this.$el.movable();
 		
-		
-		
-		engineplayer.registerListener('start',{o:this,f:this.runningChanged});
-		engineplayer.registerListener('stop',{o:this,f:this.runningChanged});
-		
-		engineplayer.registerListener('set-speed',{o:this,f:this.speedChanged});
-		
+
 		$( this.$el.find('.nav').find('[href=#monitoring]') ).tab('show');
 		
 	},
