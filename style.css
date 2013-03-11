@@ -25,6 +25,7 @@
 	border-left:solid 1px #ddd;
 	background-size:cover;
 	background-repeat:norepeat;
+	cursor:default;
 }
 
 .tile.read-only {
@@ -170,7 +171,7 @@ div.toolBox {
 	/*height : 40%;*/
 	min-height : 310px;
 	border-radius : 5px;
-	box-shadow : 0 0 5px 5px #666;
+	box-shadow : 0 0 15px 2px #ccc;
 	background-color: white;
 	
 	padding: 5px;
@@ -278,7 +279,7 @@ div  .selector  .liste .item {
 }
 
 .nav-tabs{
-	margin-top:50px;
+	margin-top:20px;
 }
 .nav-tabs > li > a{
 	padding-left:6px;
@@ -289,6 +290,7 @@ div  .selector  .liste .item {
 
 .accordion-group.mine{
 	border:none;
+	margin-bottom:30px;
 }
 .accordion-inner.mine{
 	padding:8px 0 0 0;
