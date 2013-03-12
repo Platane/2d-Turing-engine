@@ -3532,10 +3532,10 @@ ToolBox.prototype = {
 		  $(this).tab('show');
 		});
 		
-		$( this.$el.find('.nav').find('[href=#monitoring]') )
+		$( this.$el.find('.nav').find('[data-target=#monitoring]') )
 		.on('show',$.proxy( this.monitoringShow , this ) );
 		
-		$( this.$el.find('.nav').find('[href=#editing]') )
+		$( this.$el.find('.nav').find('[data-target=#editing]') )
 		.on('show',$.proxy( this.editingShow , this ) );
 		
 		this.$el.movable();
