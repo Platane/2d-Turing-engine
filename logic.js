@@ -3384,12 +3384,13 @@ extend( EnginePlayer , {
 		var tape		= options.tape!=null?options.tape:true;
 		var solution 	= options.solution!=null?options.solution:false;
 		var undoable 	= options.undoable!=null?options.undoable:true;
+		var lvl			= this.ll ? this.ll.getLvl() : null;
 		
 		var t=[];
 		
 		if( map && instruction ){
 			var instruction = this.engine.getInstruction();
-			var rewriteManual = this.ll.getLvl() ? ( solution ? this.ll.getLvl().writeManualInstructionSolution : this.ll.getLvl().writeManualInstruction ) : [];
+			var rewriteManual = lvl ? ( solution ? lvl.writeManualInstructionSolution : lvl.writeManualInstruction ) : [];
 			
 			t.push( cmd.resetMap.create( instruction ) );
 			for(var i=0;i<rewriteManual.length;i++)
@@ -3397,22 +3398,26 @@ extend( EnginePlayer , {
 		}
 		if( map && tape ){
 			var tape = this.engine.getTape();
-			var rewriteManual = this.ll.getLvl() ? ( solution ? this.ll.getLvl().writeManualTapeSolution : this.ll.getLvl().writeManualTape ) : [];
+			var rewriteManual = lvl ? ( solution ? lvl.writeManualTapeSolution : lvl.writeManualTape ) : [];
 			
 			t.push( cmd.resetMap.create( tape ) );
 			for(var i=0;i<rewriteManual.length;i++)
 				t.push( cmd.writeMap.create( tape , rewriteManual[i] , rewriteManual[i].s ) );
 		}
 		if( cursor && instruction ){
-			var cursorp = this.ll.getLvl() ? this.ll.getLvl().cursorInstruction : {x:0, y:0};
+			var cursorp = lvl ? lvl.cursorInstruction : {x:0, y:0};
 			t.push( cmd.moveCursor.create( 'instruction' , this.engine , cursorp ) );
 		}
 		if( cursor && tape ){
-			var cursorp = this.ll.getLvl() ? this.ll.getLvl().cursorTape : {x:0, y:0};
+			var cursorp = lvl ? lvl.cursorInstruction : {x:0, y:0};
 			t.push( cmd.moveCursor.create( 'tape' , this.engine , cursorp ) );
 		}
-		if(t.length>0)
+		if(t.length==0)
+			return;
+		if(undoable)
 			cmd.mgr.execute( cmd.multi.createWithTab(t) );
+		else
+			cmd.multi.createWithTab(t).execute();
 	},
 });
 EnginePlayer.create=function(engine,ll){
@@ -4085,6 +4090,30 @@ Authorizer.create=function(defaultValue,exceptions,cursorCtrl){
 };
 
 
+var SaveLoadView=function(){};
+SaveLoadView.prototype={
+	engine:null,
+	element:null,
+	init:function(engine){
+		this.engine=engine;
+	},
+	getElement:function(){
+		return this.element;
+	},
+	saveInstruction:function(){
+		var manual=JSON.stringify(this.engine.getInstruction().getRewriteManual() );
+		var url = 'http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php?stuff='+unescape( manual );
+		$('body').append( '<a href='+url+'>go</a>' );
+	},
+};
+SaveLoadView.create = function( engine ){
+     var s=new SaveLoadView()
+	 s.init(engine);
+	 return s;
+};
+
+
+scope.SaveLoadView = SaveLoadView;
 scope.DecriptionPanelView = DecriptionPanelView;
 scope.EnginePlayer = EnginePlayer;
 scope.TuringEngine = TuringEngine;
@@ -4102,79 +4131,7 @@ scope.initWhenDOMLoaded=initWhenDOMLoaded;
 } )( window );
 
 
-var instruction,
-	ll,
-	scene;
 
-var datamap,
-	render,
-	tape;
-	
-window.onload = function(){
-	
-	initWhenDOMLoaded();
-	
-	window.save=function(){return JSON.stringify(instruction.getDatamap().getRewriteManual());};
-	
-	tape = SocialMap.create();
-	
-	/*
-	for( var i = 0 ; i < 5000 ; i ++ )
-		tape.write( Math.floor( Math.random()*100 ) , Math.floor( Math.random()*100 ) , Math.floor( Math.random()*20) );
-	*/
-	
-		//tape.write( i , j , Math.floor(Math.random()*20) );
-	
-	var authorizerTape=Authorizer.create(true);
-	var authorizerInstruction=Authorizer.create(true);
-	
-	var engine=TuringEngine.create( SocialMap.create() , tape  );
-	
-	ll=LevelsLoader.create(engine,authorizerTape,authorizerInstruction);
-	
-	var engineplayer = EnginePlayer.create(engine,ll);
-	
-	
-	var container=$("#container");
-	console.log(container.width());
-	
-	scene=Scene.createWithDim(container.width(),container.height(),engine,authorizerTape,authorizerInstruction);
-	scene.getElement().appendTo( $("#container") );
-	//.css({'position':'absolute' , 'top':'130px' , 'left':'20%' });
-	
-	DecriptionPanelView.create( engineplayer , ll , $('#description') , $('#navigation') )
-	
-	/*
-	for( var i = 50 ; i >= 0 ; i -- )
-	for( var j = 50 ; j >= 0 ; j -- )
-		tape.write( i , j , (i+j)%20 );
-	
-	authorizerTape.init(false);
-	authorizerInstruction.init(true,[{x:5,y:5}]);
-	*/
-	
-	instruction=scene.getPhyInstr();
-	
-	var tb=ToolBox.create( scene , engineplayer , ll  );
-	
-	tb.getElement().appendTo( $("body") ).css({'z-index':50});
-	
-	//init
-	ll.next();
-	
-	
-	var stats = new Stats();
-	stats.setMode(0); // 0: fps, 1: ms
-
-	// Align top-left
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.right = '50px';
-	stats.domElement.style.top = '0px';
-
-	document.body.appendChild( stats.domElement );
-	
-	timeLine.stats=stats;
-};
 document.onselectstart = function() {
   return false;
 };

@@ -181,6 +181,8 @@ div.toolBox {
 
 
 }
+
+
 #container{
 	width:55%;
 	max-width:960px;
@@ -189,6 +191,11 @@ div.toolBox {
 	position:absolute;
 	top:2%;
 	left:34%;
+}
+#container.large{
+	width:75%;
+	max-width:1200px;
+	left:15%;
 }
 #popUpLayer{
 	display:none;
