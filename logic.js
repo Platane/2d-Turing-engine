@@ -3409,7 +3409,7 @@ extend( EnginePlayer , {
 			t.push( cmd.moveCursor.create( 'instruction' , this.engine , cursorp ) );
 		}
 		if( cursor && tape ){
-			var cursorp = lvl ? lvl.cursorInstruction : {x:0, y:0};
+			var cursorp = lvl ? lvl.cursorTape : {x:0, y:0};
 			t.push( cmd.moveCursor.create( 'tape' , this.engine , cursorp ) );
 		}
 		if(t.length==0)
