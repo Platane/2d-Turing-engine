@@ -18,6 +18,8 @@
 <link rel="stylesheet" href="style.css" />
 
 
+
+
 <script type="text/javascript">
 
 var sl;
@@ -48,7 +50,7 @@ window.onload = function(){
 	ToolBox.create( scene , engineplayer , null  ).getElement().appendTo( $("body") ).css({'z-index':50});
 	
 	
-	sl=SaveLoadView.create( engine );
+	sl=SaveLoadView.create( engine , engineplayer , $('#save-box') );
 	
 	engineplayer.reset();
 	
@@ -64,14 +66,56 @@ window.onload = function(){
 	document.body.appendChild( stats.domElement );
 	
 	timeLine.stats=stats;
+	
 };
 
+function envoi(lien) {
+
+	   document.cache.action = "http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php?stuff="+lien;
+
+	   document.cache.submit();
+
+}
 
 </script>
 </head>
 <body>
 
 <div id="container" class="large"></div>
+
+
+<div id="save-box" class="toolBox" >
+	
+	<p>You can either use the old copy / paste method : copy the caracter chain from the input save text. Paste it wherever you want and paste it in the load input the next time.</p>
+	<p>Or you can try to save the file directly. Open the grey submit button in a new tab, and save the page (that is the best working way, sorry :(   ).</p>
+	
+	<div class="row-fuild">
+		<div class="span6">
+			<div class="accordion-group mine">
+				<div class="accordion-toggle btn" data-toggle="collapse" data-target="#collapse-save" data-action="save">save</div>
+				<div id="collapse-save" class="accordion-body collapse">
+					<div class="accordion-inner mine">
+						<input type="text"></input>
+						<div data-action="link"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		<div class="span6">
+		
+			<div class="accordion-group mine">
+				<div class="accordion-toggle btn" data-toggle="collapse" data-target="#collapse-load" data-action="load">load</div>
+				<div id="collapse-load" class="accordion-body collapse">
+					<div class="accordion-inner mine">
+						<input type="text"  ></input>
+						<input type="file" ></input>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 
 <div id="tools-box" class="toolBox">
@@ -96,8 +140,8 @@ window.onload = function(){
 		  </div>
 	</div>
 	<ul class="nav nav-tabs" id="myTab">
-	  <li><a href="#monitoring">monitoring</a></li>
-	  <li><a href="#editing">editing</a></li>
+	  <li><a href="#" data-target="#monitoring">monitoring</a></li>
+	  <li><a href="#" data-target="#editing">editing</a></li>
 	</ul>
 	 
 	<div class="tab-content">

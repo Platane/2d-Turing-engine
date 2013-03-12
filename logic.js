@@ -3384,7 +3384,7 @@ extend( EnginePlayer , {
 		var tape		= options.tape!=null?options.tape:true;
 		var solution 	= options.solution!=null?options.solution:false;
 		var undoable 	= options.undoable!=null?options.undoable:true;
-		var lvl			= this.ll ? this.ll.getLvl() : null;
+		var lvl			= options.lvl || ( this.ll ? this.ll.getLvl() : null );
 		
 		var t=[];
 		
@@ -3541,7 +3541,7 @@ ToolBox.prototype = {
 		this.$el.movable();
 		
 
-		$( this.$el.find('.nav').find('[href=#monitoring]') ).tab('show');
+		$( this.$el.find('.nav').find('[data-target=#monitoring]') ).tab('show');
 		
 	},
 	monitoringShow:function(){
@@ -4094,21 +4094,101 @@ var SaveLoadView=function(){};
 SaveLoadView.prototype={
 	engine:null,
 	element:null,
-	init:function(engine){
+	init:function(engine,engineplayer,panel){
 		this.engine=engine;
+		this.engineplayer=engineplayer;
+		
+		panel.find("[data-action=save]").on('click',
+			$.proxy( function(e){
+				
+				var save = this.save();
+				
+				var s=JSON.stringify(save);
+				
+				panel.find( '[data-action=link]' )
+				.children().remove();
+				
+				panel.find( '[data-action=link]' )
+				.append( this.generateLink(s) )
+				.append( this.generateGetLink(s) );
+				
+				panel.find( '#collapse-save input[type=text]' )
+				.val(s)
+				.focus()
+				.select();
+				
+				panel.find( '[data-action=link] a' )
+				.on( 'mousedown' , function(e){
+					if(e.which==1){
+						alert('use right click , save as\n otherwise we will lose what you are doing');
+						e.stopPropagation();
+						e.preventDefault();
+					}
+				});
+				
+			},this));
+		
+		panel.find( 'input[type=text]' )
+		.on('click' , function(e){ 
+			$(e.target).focus().select(); 
+			e.stopPropagation(); 
+			e.preventDefault();
+		} );
+		
+		var loadinput=function(e){ 
+			var s=$(e.target).val();
+			if(s.trim().length>0){
+				var save=JSON.parse(s);
+				this.load(save);
+			}
+			e.stopPropagation(); 
+			e.preventDefault();
+		};
+		
+		panel.find( '#collapse-load input[type=text]' )
+		.on('focusout' , $.proxy( loadinput,this) )
+		.on('keydown' , $.proxy( function(e){
+			if(e.which==13)
+				loadinput.call(this,e);
+		},this) );
+		
+		panel.find( '#collapse-load input[type=file]' )
+		.on('change' , $.proxy( function(e){
+			var file=e.target.files[0];
+			var fr=new FileReader();
+			fr.onload=$.proxy(function(e){
+				var s=e.target.result;
+				if(s.trim().length>0){
+					var save=JSON.parse(s);
+					this.load(save);
+				}
+			},this);
+			fr.readAsText(file);
+		},this) );
+		
+		panel.movable();
 	},
-	getElement:function(){
-		return this.element;
+	generateLink:function(save){
+		return $('<form name="pseudoform" method="post" action="http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php"><input type="hidden" name="stuff" value=\'' + save +'\'/><input type="submit"></input><a target="_blank" href="javascript:pseudoform.submit()">file ( post method )</a></form>');	
 	},
-	saveInstruction:function(){
-		var manual=JSON.stringify(this.engine.getInstruction().getRewriteManual() );
-		var url = 'http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php?stuff='+unescape( manual );
-		$('body').append( '<a href='+url+'>go</a>' );
+	generateGetLink:function(save){
+		return $('<a href=\'http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php?stuff='+save+'\' target="_blank" >file ( get method )</a>');	
+	},
+	save:function(){
+		return {
+					'writeManualInstruction' : this.engine.getInstruction().getRewriteManual(),
+					'writeManualTape' : this.engine.getTape().getRewriteManual(),
+					'cursorInstruction' : this.engine.getCursorInstr(),
+					'cursorTape' : this.engine.getCursorTape(),
+				};
+	},
+	load:function(save){
+		this.engineplayer.reset( {'lvl':save} );
 	},
 };
-SaveLoadView.create = function( engine ){
+SaveLoadView.create = function( engine,engineplayer,panel ){
      var s=new SaveLoadView()
-	 s.init(engine);
+	 s.init(engine,engineplayer,panel);
 	 return s;
 };
 
