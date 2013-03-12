@@ -25,6 +25,7 @@
 	border-left:solid 1px #ddd;
 	background-size:cover;
 	background-repeat:norepeat;
+	cursor:default;
 }
 
 .tile.read-only {
@@ -86,6 +87,8 @@
 	-moz-animation: bigBtn 0.7s ease;
 	animation: bigBtn 0.7s ease;
 }
+
+
 @-webkit-keyframes bigBtn 
 {
 	0%  {-webkit-transform : scale( 1 , 1 );}
@@ -143,6 +146,37 @@ div.popUp {
 .toolBox-header:hover {
 	background-color:#ddd;
 }
+.tool-group:last-child{
+	border-bottom:none;
+}
+.tool-group {
+	border-bottom: solid 1px #ccc;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+.tool-group#ctrl-panel {
+	text-align:center;
+}
+
+#tools-box{
+	width : 10%;
+	min-width:140px;
+	max-width:250px;
+	/*height : 40%;*/
+	min-height : 310px;
+}
+body#body-index{
+	background-image:
+		-webkit-radial-gradient( 65% 50%, ellipse cover , rgba(230,230,230,0) 0%, rgba(30,30,30,0.8) 120% ) ,
+		url('ressource/back.png');
+	background-image:
+		-moz-radial-gradient( 65% 50%, ellipse cover , rgba(230,230,230,0) 0%, rgba(30,30,30,0.8) 120% ) ,
+		url('ressource/back.png');
+	background-image:
+		radial-gradient( 65% 50%, ellipse cover , rgba(230,230,230,0) 0%, rgba(30,30,30,0.8) 120% ) ,
+		url('ressource/back.png');
+	background-position:0 0;
+}
 
 div.toolBox {
 
@@ -151,22 +185,69 @@ div.toolBox {
 	top : 20%;
 	right : 5px;
 	
-	width : 10%;
-	min-width:140px;
-	max-width:250px;
-	/*height : 40%;*/
-	min-height : 310px;
 	border-radius : 5px;
-	box-shadow : 0 0 5px 5px #666;
+	box-shadow : 0 0 15px 2px #ccc;
 	background-color: white;
 	
 	padding: 5px;
 	padding-bottom:40px;
 	
 	z-index:99;
-
-
 }
+#save-box {
+	top : 20%;
+	left : 5px;
+	text-align:center;
+	width:280px;
+	min-height:140px;
+	text-align:justify;
+	font-size:10px;
+}
+#save-box input{
+	width:90%;
+}
+#save-box .span6{
+	width:48%;
+	margin-left:0;
+	text-align:center;
+}
+
+#index-nav{
+margin-top:200px;
+margin-left:auto;
+margin-right:auto;
+
+width:400px;
+text-align:center;
+
+background-color:rgba(255,255,255,0.7);
+border-radius:7px;
+}
+#index-nav .btn{
+	margin : 20px;
+	min-width:130px;
+}
+
+#footer {
+	height:120px;
+	background-color:#222;
+	bottom:0;
+	position:fixed;
+	width:100%;
+	box-shadow:0 0 10px 5px #999;
+}
+#footer [class*="span"]:first-child{
+	border:none;
+}
+#footer [class*="span"] {
+	margin-top:10px;
+	height:100px;
+	border-left: dashed 3px #aaa;
+	padding:20px;
+	color:#aaa;
+	vertical-align:center;
+}
+
 #container{
 	width:55%;
 	max-width:960px;
@@ -175,6 +256,11 @@ div.toolBox {
 	position:absolute;
 	top:2%;
 	left:34%;
+}
+#container.large{
+	width:75%;
+	max-width:1200px;
+	left:15%;
 }
 #popUpLayer{
 	display:none;
@@ -245,6 +331,9 @@ div  .selector  .liste .item {
 .btn[data-action="toggle-follow-cursor"]{
 	background-image: url('ressource/eye-icon.png');
 }
+.btn[data-action*="reset-"]{
+	background-image: url('ressource/reset-icon.png');
+}
 
 #tools-box .btn:hover{
 	background-position:center 0px;
@@ -262,7 +351,7 @@ div  .selector  .liste .item {
 }
 
 .nav-tabs{
-	margin-top:50px;
+	margin-top:20px;
 }
 .nav-tabs > li > a{
 	padding-left:6px;
@@ -273,6 +362,7 @@ div  .selector  .liste .item {
 
 .accordion-group.mine{
 	border:none;
+	margin-bottom:30px;
 }
 .accordion-inner.mine{
 	padding:8px 0 0 0;
