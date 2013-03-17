@@ -20,7 +20,8 @@
 
 <script type="text/javascript">
 
-window.save=function(){return JSON.stringify(instruction.getDatamap().getRewriteManual());}; //little hack for dev purpose
+var instruction;
+window.save=function(){return JSON.stringify(instruction.getRewriteManual());}; //little hack for dev purpose
 	
 window.onload = function(){
 	
@@ -54,6 +55,8 @@ window.onload = function(){
 	//init
 	ll.next();
 	
+	
+	instruction=engine.getInstruction();
 	
 	//stats by mr doob
 	var stats = new Stats();
@@ -326,6 +329,84 @@ window.onload = function(){
 	<h3>Procédure</h3>
 	<p>On propose l'approche suivante : décrémenter de un le nombre de pas tout en incrémentant de un celui du haut, tant que le nombre du bas est différent de zéro.</p>
 	
+	
+</div>
+
+<div class="description" data-id="6">
+	<h1>Empreinte</h1>
+	<p>Avant de nous attaquer à plus gros, abordons un concept utile : les effets de bords.</p>
+	<p>Nous ne voulons pas dégrader les données en entré lors de l'addition. Lors de l'exercice précédent, les entrées ( les deux entiers à additionner ) ne sont plus lisible à la fin du programme, le premier est remplacé par la somme et l'autres est égal à zéro.</p>
+	<p>Ce n'est plus ce que nous voulons, les entrées ne doivent pas être altérés, ou si elle le sont pendant le processus, les restaurer à la fin.</p>
+	
+	
+	<h3>Représentation</h3>
+	<p>On place les deux entiers en colonne : </p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	</div>
+	<p><small>La dernière ligne doit contenir le résultat à la fin</small><p>
+	<p>A la fin du processus, on doit obtenir cela: </p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<h3>Procédure</h3>
+	<p>On se servira des mécanisme de l'exercice précédent. Plutot que de supprimer un à chaque itération, on marquera la cellule unité comme prise en compte en la peignant en orange.</p>
+	<p>Processus en cours </p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<p>Il suffira de repeindre les cellules en bleu à la fin de l'execution</p> 
+	<p>La procédure en détail est la suivante:</p>
+	<ul>
+		<li>recopier le premier nombre dans le résultat
+		<ul>
+			<li>se déplacer jusqu'à la prochaine cellule unité qui n'est pas orange de la première entrée</li>
+			<li>si elle est vide, on a fini</li>
+			<li>sinon la peindre en orange</li>
+			<li>ajouter un au résultat: se déplacer juqu'à la prochaine cellule unité qui n'est pas bleu du résultat, la peindre en bleu</li>
+			<li>recommencer la première étape</li>
+		</ul>
+		</li>
+		<li>recopier le deuxième nombre dans le résultat <small> très similaire à précédement</small></li>
+		<li>repeindre en bleu le deuxième nombre</li>
+		<li>repeindre en bleu le premier nombre</li>
+	</ul>
+	<p>Notons que l'on pourrait repeindre le permier nombre dès qu'on l'a recopier, c'est à vous de voir</p>
+</div>
+
+<div class="description" data-id="7">
+	<h1>Mathématiques anvancées</h1>
+	<p>Nous avons toutes les cartes en main pour faire la multiplication de deux entiers.</p>
+	<h3>Direction</h3>
+	<p>Pour se faire nous allons nous allons décomposer l'opération en addition que nous savons déjà faire. Pour rappel 4*5 = 5 + 5 + 5 + 5.</p>
+	<p>Nous allons avoir besoin de faire l'addition plusieurs fois, c'est pourquoi il est important de restaurer les données à chaque itération comme on l'a vu précédement</p>
+	
+	<h3>Représentation</h3>
+	<p>Comme d'habitude, on place les deux entiers en entrée en colonne, et le résultat en dessous</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	</div>
+	
+	<p>On ne veut pas d'effet de bord à la fin du processus sur les entrées, alors pensez à repeindre les cellules si vous utilisez des marqueurs<p>
+	
+	
+	<h3>Procédure</h3>
+	<p>La procédure en détail est la suivante:</p>
+	<ul>
+		<li>se déplacer sur la prochaine cellule unité qui n'est pas orange de la première entrée</li>
+		<li>si elle est vide, on a finit. Pensez à restaurer les entrées!</li>
+		<li>sinon marquer la cellule orange et ajouter la deuxième entrée au résultat. Aidez vous des exercices précédents et des marqueurs</li>
+	</ul>
 	
 </div>
 
