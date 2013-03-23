@@ -410,6 +410,103 @@ window.onload = function(){
 	
 </div>
 
+<div class="description" data-id="8">
+	<h1>Tri</h1>
+	<p>Encore un petit jeu sur les entiers. On souhaite trier un ensemble d'entier.</p>
+	
+	<h3>Représentation</h3>
+	<p>Encore une fois on utilise la représentation en barre pour les entiers. On les place les uns en dessous des autres.</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<p>A la fin du processus, on souhaite que les entiers soient triés du plus gand au plus petit en commençant par le haut.</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	
+	<h3>Procédure</h3>
+	<h5>Prérequis</h5>
+	<p>La solution que l'on se propose de mettre en oeuvre est quelque chose entre le tri par insertion et le bubble sort.</p>
+	<p>On a une opération atomique : comparer deux entiers consécutifs et échanger leurs places si ils ne sont pas correctement ordonnés. Essayez d'effectuer cette opération avant de passer à la suite. C'est en fait assez simple:</p>
+	<ul>
+		<li>On se place à la fin du nombre du dessous.</li>
+		<li>Si pour le nombre du dessus est plus grand, lui ajouter un tout en soustraiyant un à celui du dessous <small>(Il suffit de tester si la case au dessus de la fin du second nombre est vide)</small></li>
+		<li>On se décalle d'une case vers la gauche et on répéte l'opération ci-dessus.</li>
+	</ul>
+	<p>Prenez garde à bien prendre en compte le cas où l'entier est nul!</p>
+	
+	<h5>Boucle</h5>
+	<p>Bien une fois cela fait, il va falloir effectuer cette opération un certain nombre de fois de manière intelligente. Prenons 5 min pour y réfléchir ... </p>
+	<p>Comme souvent en programmation, on va chercher à diviser le problème.</p>
+	<p>Faisons l'hypothèse que l'on posséde une partition de la liste de taille <strong>n</strong> déjà trié, et l'entier <strong>n+1</strong> en dessous. Il suffit d'effectuer la fameuse opération atomique sur les entier <strong>n</strong> et <strong>n+1</strong>, si les éléments sont bien placé rien ne se passe ( la partition <strong>n+1</strong> est déjà ordonnée ) sinon le dernier élément va "remonter" d'un étage. On le compare alors avec l'entier au dessus de lui : <strong>n-1</strong>, au cas où il remonte suite à cette opération, on le compare au suivant, et ainsi de suite. Si on remonte jusqua l'élément le plus en haut, on est sur que la partition <strong>n+1</strong> est ordonnée.</p>
+	<p>Génial ! et maintenant? On répéte la procédure avec l'élément suivant vers le bas jusqua ce qu'ils soient tous "remontés" ( comme des bulles dans une choppe de bière, d'ou le nom "bubble sort" )</p>
+	<p>Il nous reste à nous assurer que l'ypothèse de base soit vérifier, à savoir "la partition des <strong>n</strong> premiers éléments est ordonnée. Facile, on prend n=1!</p>
+	
+	<p>Pour la mise en oeuvre de la solution, on propose de marquer la partition ordonnée afin de nous y retrouver. On remplace les case verte par des jaunes quand la partition est ordonné</p>
+	<p>Voila ce que cela donne quand l'algorithme est en cours d'éxécution</p>
+	
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<p>La partition des 5 premiers éléments est trié, on intégre le 6 élément en effectuant l'opération de comparaison et échange de position.</p>
+	
+	<div style='margin-left:20px;margin-top:20px;display:inline-block;'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	
+	<div style='margin-left:20px;margin-top:20px;display:inline-block;'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<div style='margin-left:20px;margin-top:20px;display:inline-block;'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<p>L'élément "remonte"</p>
+	
+</div>
+
+
 </div>
 
 
