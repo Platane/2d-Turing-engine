@@ -4258,6 +4258,8 @@ DecriptionPanelView.prototype={
 	engineplayer:null,
 	ll:null,
 	
+	lang:'fr',
+	
 	init:function(engineplayer,ll,description,navigation){
 		this.navigation=navigation;
 		this.description=description;
@@ -4265,6 +4267,10 @@ DecriptionPanelView.prototype={
 		this.engineplayer=engineplayer;
 		this.ll=ll;
 		
+		var rek=(/lang=([^&]+)/).exec(document.URL);
+		this.lang = rek==null?'fr':rek[1];
+		if(this.lang!="eng"&&this.lang!="fr")
+			this.lang="fr";
 		
 		for( var i=0;i<levels.length;i++)
 			this.navigation.find('#exercices').append( $('<button class="btn" data-i="'+i+'">'+(i+1)+'</button>') );
@@ -4280,7 +4286,7 @@ DecriptionPanelView.prototype={
 		for(var i=0;i<group.length;i++){
 			var l=$('<ul>');
 			for(var j=group[i].a;j<=group[i].b;j++){
-				tmp.empty().wrapInner(  $(".descriptionPool[lang=fr]").children(".description[data-id="+j+"]").html()  );
+				tmp.empty().wrapInner(  $(".descriptionPool[lang="+this.lang+"]").children(".description[data-id="+j+"]").html()  );
 				var title=tmp.find('h1').text();
 				$('<li>'+(j+1)+' : <a data-i="'+j+'">'+title+'</a></li>')
 				.appendTo(l)
@@ -4318,7 +4324,7 @@ DecriptionPanelView.prototype={
 		
 		//load the html description
 		this.description.children().remove();
-		this.description.empty().wrapInner( $(".descriptionPool[lang=fr]").children(".description[data-id="+this.ll.level+"]").html() );
+		this.description.empty().wrapInner( $(".descriptionPool[lang="+this.lang+"]").children(".description[data-id="+this.ll.level+"]").html() );
 		
 		//reset btn
 		this.navigation.find('.btn[data-action="next"]')
