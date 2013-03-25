@@ -12,7 +12,7 @@
 <script type="text/javascript" src="external/stats.min.js"></script>
 <script type="text/javascript" src="external/bootstrap/js/bootstrap.js"></script>
 <script type="text/javascript" src="levels.js"></script>
-<script type="text/javascript" src="logic.min.js"></script>
+<script type="text/javascript" src="logic.js"></script>
 
 <link rel="stylesheet" href="external/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="style.css" />
@@ -82,8 +82,8 @@ window.onload = function(){
 	<div class="btn" data-action="next">next!</div>
 	<div class="btn" data-action="solution">solution</div>
 	<div class="btn-toolbar">
-	  <div class="btn-group">
-		
+	  <div id="exercices" class="btn-group">
+		<button id="summary-btn" class="btn" data-toggle="button" >Summary</button>
 	  </div>
 	</div>
 </div>

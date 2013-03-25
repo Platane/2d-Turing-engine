@@ -4267,10 +4267,42 @@ DecriptionPanelView.prototype={
 		
 		
 		for( var i=0;i<levels.length;i++)
-			this.navigation.find('.btn-group').append( $('<button class="btn" data-i="'+i+'">'+(i+1)+'</button>') );
+			this.navigation.find('#exercices').append( $('<button class="btn" data-i="'+i+'">'+(i+1)+'</button>') );
+		
+		
+		var table=$('<ul>');
+		var group=[ 
+			{a:0,  b:2,  title:'découverte'},
+			{a:3,  b:4,  title:'premiers programmes'},
+			{a:5,  b:8,  title:'arithmétique'},
+		];
+		var tmp=$('<div>');
+		for(var i=0;i<group.length;i++){
+			var l=$('<ul>');
+			for(var j=group[i].a;j<=group[i].b;j++){
+				tmp.empty().wrapInner(  $(".descriptionPool[lang=fr]").children(".description[data-id="+j+"]").html()  );
+				var title=tmp.find('h1').text();
+				$('<li>'+(j+1)+' : <a data-i="'+j+'">'+title+'</a></li>')
+				.appendTo(l)
+				.find('a')
+				.on('click',$.proxy(function(e){
+					this.ll.gotoLvl( parseInt( $(e.target).attr('data-i') ) );
+					e.preventDefault();
+					e.stopPropagation();
+				},this))
+			}
+			table.append( $('<li><h4>'+group[i].title+'</h4></li>').append(l) );
+		};
+		$('#summary-btn').popover({
+			'title':$('<h4>summary</h4>'),
+			'placement':'top',
+			'trigger':'click',
+			'html':true,
+			'content':table
+		})
 		
 		this.navigation.find('.btn-group .btn')
-		.on('click' , $.proxy( function(e){ this.ll.gotoLvl( parseInt( $(e.target).attr('data-i') ) ); } ,this ) );
+		.on('click' , $.proxy( function(e){ if($(e.target).attr('data-i')==null)return; this.ll.gotoLvl( parseInt( $(e.target).attr('data-i') ) ); } ,this ) );
 		
 		this.navigation.find('.btn[data-action="next"]')
 		.on('click' , $.proxy( function(e){ this.engineplayer.stop(); this.ll.next(); } ,this ) );
@@ -4292,7 +4324,7 @@ DecriptionPanelView.prototype={
 		this.navigation.find('.btn[data-action="next"]')
 		.removeClass('btn-success');
 			
-		this.navigation.find('.btn-group .btn').removeClass('active')
+		this.navigation.find('.btn-group .btn:not(#summary-btn)').removeClass('active')
 		this.navigation.find('.btn-group .btn[data-i='+this.ll.level+']').addClass('active');
 	},
 	win:function(){
