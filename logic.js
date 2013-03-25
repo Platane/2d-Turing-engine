@@ -4030,24 +4030,33 @@ SaveLoadView.prototype={
 		this.engine=engine;
 		this.engineplayer=engineplayer;
 		
-		panel.find("[data-action=save]").on('click',
-			$.proxy( function(e){
-				
-				var save = this.save();
-				
-				var s=JSON.stringify(save);
-				
+		var save=function(){
+			
+			var instruction=panel.find( '#collapse-save #save-instruction' ).length==0?true:panel.find( '#collapse-save #save-instruction' ).is(':checked');
+			var tape=panel.find( '#collapse-save #save-panel' ).length==0?true:panel.find( '#collapse-save #save-tape' ).is(':checked');
+			
+			var save = this.save({
+				instructionMap:instruction,
+				instructionCursor:instruction,
+				tapeMap:tape,
+				tapeCursor:tape,
+			});
+			var s=JSON.stringify(save);
+			
+			panel.find( '#collapse-save input[type=text]' )
+			.val(s)
+			.focus()
+			.select();
+			
+			
+			/*
+				// not working properly 
 				panel.find( '[data-action=link]' )
 				.children().remove();
 				
 				panel.find( '[data-action=link]' )
 				.append( this.generateLink(s) )
 				.append( this.generateGetLink(s) );
-				
-				panel.find( '#collapse-save input[type=text]' )
-				.val(s)
-				.focus()
-				.select();
 				
 				panel.find( '[data-action=link] a' )
 				.on( 'mousedown' , function(e){
@@ -4057,8 +4066,17 @@ SaveLoadView.prototype={
 						e.preventDefault();
 					}
 				});
-				
+				*/
+		};
+		
+		panel.find("[data-action=save]").on('click',
+			$.proxy( function(e){
+				save.call(this);
+				panel.find("#collapse-save").collapse('show');
 			},this));
+		
+		panel.find("#collapse-save input[type=checkbox]").on('change',$.proxy( save ,this));
+		
 		
 		panel.find( 'input[type=text]' )
 		.on('click' , function(e){ 
@@ -4071,7 +4089,12 @@ SaveLoadView.prototype={
 			var s=$(e.target).val();
 			if(s.trim().length>0){
 				var save=JSON.parse(s);
-				this.load(save);
+				this.load(save,
+					panel.find( '#collapse-load #load-instruction' ).is(':checked'),
+					panel.find( '#collapse-load #load-tape' ).is(':checked')
+					);
+				panel.find("#collapse-load").collapse('hide');
+				panel.find( '#collapse-load input[type=text]' ).val('');
 			}
 			e.stopPropagation(); 
 			e.preventDefault();
@@ -4106,16 +4129,33 @@ SaveLoadView.prototype={
 	generateGetLink:function(save){
 		return $('<a href=\'http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php?stuff='+save+'\' target="_blank" >file ( get method )</a>');	
 	},
-	save:function(){
-		return {
-					'writeManualInstruction' : this.engine.getInstruction().getRewriteManual(),
-					'writeManualTape' : this.engine.getTape().getRewriteManual(),
-					'cursorInstruction' : this.engine.getCursorInstr(),
-					'cursorTape' : this.engine.getCursorTape(),
-				};
+	save:function(options){
+		options=options||{};
+		var s={};
+		
+		if( options.instructionMap != null ? options.instructionMap : true )
+			s[ 'writeManualInstruction' ] = this.engine.getInstruction().getRewriteManual();
+		
+		if( options.instructionCursor != null ? options.instructionCursor : true )
+			s[ 'cursorInstruction' ] = this.engine.getCursorInstr();
+		
+		if( options.tapeMap != null ? options.tapeMap : true )
+			s[ 'writeManualTape' ] = this.engine.getTape().getRewriteManual();
+		
+		if( options.tapeCursor != null ? options.tapeCursor : true )
+			s[ 'cursorTape' ] = this.engine.getCursorTape();
+		
+		return s;
 	},
-	load:function(save){
-		this.engineplayer.reset( {'lvl':save} );
+	load:function(save,instruction,tape){
+		instruction= instruction != null ? instruction : true;
+		tape = tape != null ? tape : true;
+		var options={
+			'lvl':save,
+			'instruction' : instruction && save.writeManualInstruction != null,
+			'tape' : tape && save.writeManualTape != null,
+		};
+		this.engineplayer.reset( options );
 	},
 };
 SaveLoadView.create = function( engine,engineplayer,panel ){
