@@ -245,6 +245,13 @@ border-radius:7px;
 	color:#aaa;
 	vertical-align:center;
 }
+#navigation{
+	padding-top: 10px;
+	border-top: solid 1px #ddd;
+	margin-top: 10px;
+	min-height:30px;
+	height:10%;
+}
 
 #container{
 	width:55%;

@@ -3738,7 +3738,7 @@ ToolBox.prototype = {
 	
 	$el:null,
 	
-	_speeds : [ 1 , 2 , 5 , 10  , 30 , 90  ],
+	_speeds : [ 1 , 2 , 5 , 10  , 30 , 90 , 500 ],
 	
 	engineplayer:null,
 	ll:null,
@@ -3850,7 +3850,7 @@ ToolBox.prototype = {
 		
 		this.scene.cursorInstMovable(false).cursorTapeMovable(false);
 		
-		if( this.ll )
+		if( !this.scene.authorizerTape.defaultValue )
 			this.engineplayer.reset({'instruction':false,'tape':true,'undoable':false});
 	},
 	editingShow:function(){
@@ -4280,7 +4280,9 @@ DecriptionPanelView.prototype={
 		var group=[ 
 			{a:0,  b:2,  title:'découverte'},
 			{a:3,  b:4,  title:'premiers programmes'},
-			{a:5,  b:8,  title:'arithmétique'},
+			{a:5,  b:9,  title:'arithmétique'},
+			{a:10,  b:11,  title:'représentation binaire'},
+			{a:12,  b:12,  title:'bonus'},
 		];
 		var tmp=$('<div>');
 		for(var i=0;i<group.length;i++){
